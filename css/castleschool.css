@@ -1,32 +1,34 @@
-#block-castleschool-quote-castleschool-quote-block {
+/* Horizontal quote block */
+
+#block-castleschool-castleschool-block-quote-small {
     margin-left: 5%;
     margin-right: 5%;
 }
 
-#block-castleschool-quote-castleschool-quote-block .ajax-progress-throbber {
+#block-castleschool-castleschool-block-quote-small .ajax-progress-throbber {
     display: none
 }
 
-#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-iwanttostudy {
+#block-castleschool-castleschool-block-quote-small .form-item-castleschool-quote-iwanttostudy {
     float: left;
 }
 
-#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-months {
-    float: left;
-    margin-left: 5%;
-}
-
-#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-day {
+#block-castleschool-castleschool-block-quote-small .form-item-castleschool-quote-months {
     float: left;
     margin-left: 5%;
 }
 
-#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-weeks {
+#block-castleschool-castleschool-block-quote-small .form-item-castleschool-quote-day {
     float: left;
     margin-left: 5%;
 }
 
-#block-castleschool-quote-castleschool-quote-block .form-submit {
+#block-castleschool-castleschool-block-quote-small .form-item-castleschool-quote-weeks {
+    float: left;
+    margin-left: 5%;
+}
+
+#block-castleschool-castleschool-block-quote-small .form-submit {
     margin-top: 25px;
     float: left;
 }
