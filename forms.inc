@@ -1,10 +1,8 @@
 <?php
 
-/**
- * Choose your course form
- */
+/* Choose Your Course Form */
 
-function castleschool_quote_block_form($form, &$form_state, $weeks) {
+function castleschool_quote_block_form($form, &$form_state, $weeks, $nodeid) {
 
   $form['castleschool_quote_iwanttostudy'] = array(
     '#type' => 'select',
@@ -76,19 +74,24 @@ function castleschool_quote_block_form($form, &$form_state, $weeks) {
     '#default_value' => 1080,
   );
 
-  $markup = '<div class="castle-quote-wrapper">';
-  $markup .= '<span data-bind="text: value" class="castle-quote-total">£1080</span>';
-  $markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
-  $markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from <span data-bind="text: value">£600</span></span>';
-  $markup .= '</div>';
+  if ($nodeid == 110) {
+    $markup = '<div class="castle-quote-wrapper">';
+    $markup .= '<span data-bind="text: value" class="castle-quote-total">£1080</span>';
+    $markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
+    $markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from <span data-bind="text: value">£600</span></span>';
+    $markup .= '</div>';
 
-  $form['quote'] = array(
-    '#markup' => $markup,
-  );
+    $form['quote'] = array(
+      '#markup' => $markup,
+    );
+    $submitbuttonvalue = t('Continue');
+  } else {
+    $submitbuttonvalue = t('Start Quote');
+  }
 
   $form['submit_button'] = array(
     '#type' => 'submit',
-    '#value' => t('Continue'),
+    '#value' => $submitbuttonvalue,
   );
 
   return $form;
@@ -115,18 +118,24 @@ function castleschool_quote_select_callback($form, $form_state) {
   return $form['castleschool_quote_day'];
 }
 
-/**
- * Search for Accommodation form
- */
+/* Search for Accommodation form */
 
-function castleschool_search_for_accommodation_form($form, &$form_state) {
+function castleschool_search_for_accommodation_form($form, &$form_state, $weeks) {
+
+  $form['intro'] = array(
+    '#markup' => '<p>' . t('We need to know a little bit about you before we can find suitable accommodation.') . '</p>',
+  );
 
   $form['howlong'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#title' => t('How long do you want to stay?'),
-    '#size' => 40,
-    '#maxlength' => 40,
-    '#required' => TRUE,
+    '#options' => $weeks,
+    '#required' => FALSE,
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
   );
 
   $form['age'] = array(
@@ -137,9 +146,19 @@ function castleschool_search_for_accommodation_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  $form['submit_button'] = array(
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/choose-your-course">Back</a>'
+  );
+
+  $form['no_accommodation_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/airport-transfers">I do not require accommodation</a>',
+  );
+
+  $form['search_button'] = array(
     '#type' => 'submit',
+    '#name' => 'search_button',
     '#value' => t('Search'),
+    '#submit' => array('castleschool_search_for_accommodation_form_submit'),
   );
 
   return $form;
@@ -154,28 +173,51 @@ function castleschool_search_for_accommodation_form_submit($form, &$form_state) 
   $form_state['redirect'] = 'choose-your-accommodation';
 }
 
-/**
- * Choose Accommodation Form
- */
+/* Choose Accommodation Form */
 
 function castleschool_choose_accommodation_form($form, &$form_state) {
 
-  $options = array(
-    1 => t('Homestay, Comfort Single room, Bed & breakfast, Private bathroom'),
-    2 => t('Homestay, Comfort Single room, Half board, Private bathroom'), 
-    3 => t('Homestay, Standard Single room, Bed & breakfast'),
-    4 => t('Homestay, Standard Single room, Half board'),
+  $accommodationoptions = array(
+    array('aid' => 1, 'description' => 'Homestay (single room, half board)', 'price' => 145),
+    array('aid' => 2, 'description' => 'Homestay (twin room, half board)', 'price' => 125),
+    array('aid' => 3, 'description' => 'Room only (self-catering)', 'price' => 125),
+    array('aid' => 4, 'description' => 'Self-catering Twin room', 'price' => 105),
   );
 
-  $form['accommodation_type'] = array(
-    '#type' => 'radios',
-    '#title' => t('Choose your accommodation'),
+  $header = array(
+    'description' => t('Description'),
+    'price' => t('Price'),
+  );
+
+  $options = array();
+  foreach($accommodationoptions as $accommodationoption) {
+    $options[$accommodationoption['aid']] = array(
+      'description' => $accommodationoption['description'],
+      'price' => '£' . $accommodationoption['price'],
+    );
+  }
+
+  $form['table'] = array(
+    '#type' => 'tableselect',
+    '#header' => $header,
     '#options' => $options,
+    '#multiple' => FALSE,
+    '#required' => TRUE,
   );
 
-  $form['submit_button'] = array(
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/search-for-accommodation">Back</a>'
+  );
+
+  $form['no_accommodation_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/airport-transfers">I don\'t require accommodation</a>'
+  );
+
+  $form['submit'] = array  (
     '#type' => 'submit',
-    '#value' => t('Next'),
+    '#name' => 'submit',
+    '#value' => t('Submit'),
+    '#submit' => array('castleschool_choose_accommodation_form_submit'),
   );
 
   return $form;
@@ -187,29 +229,58 @@ function castleschool_choose_accommodation_form_validate($form, &$form_state) {
 
 function castleschool_choose_accommodation_form_submit($form, &$form_state) {
 
+  // Note: Selection = $form_state['values']['table']
+
   $form_state['redirect'] = 'airport-transfers';
 }
 
-/**
- * Airport Transfers Form
- */
+/* Airport Transfers Form */
 
 function castleschool_airport_transfers_form($form, &$form_state) {
 
+  $form['intro'] = array(
+    '#markup' => '<p>' . t('Would you like taxi transport from the airport to your accommodation?') . '</p>',
+  );
+
   $form['whichairport'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#title' => t('Which airport will you arrive at?'),
-    '#size' => 40,
-    '#maxlength' => 40,
-    '#required' => TRUE,
+    '#options' => array(
+      '' => t('I do not require an airport transfer'),
+      t('Gatwick') => t('Gatwick'),
+      t('Heathrow') => t('Heathrow'),
+      t('Stanstead') => t('Stanstead'),
+      t('Luton') => t('Luton'),
+    ),
+    '#required' => FALSE,
+      '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
   );
 
   $form['arrivaldeparture'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#title' => t('Would you like just an Arrival transfer or Arrival and Departure?'),
-    '#size' => 40,
-    '#maxlength' => 40,
-    '#required' => TRUE,
+    '#options' => array(
+      '' => t('- Select -'),
+      t('Arrival Transfer') => t('Arrival Transfer'),
+      t('Departure Transfer') => t('Departure Transfer'),
+      t('Arrival & Departure Transfer') => t('Arrival & Departure Transfer'),
+    ),
+    '#required' => FALSE,
+      '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  // Note: Needs to be 2 options here - either choose accommodation or search for accommodation
+
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/search-for-accommodation">Back</a>'
   );
 
   $form['submit_button'] = array(
@@ -229,10 +300,22 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'your-quote';
 }
 
-/**
- * Final Quote Form
- */
+
+/* Final Quote Form */
+
 function castleschool_finalquote_form($form, &$form_state) {
+
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/airport-transfers">' . t('Back') . '</a>',
+  );
+
+  $form['contactus_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/">' . t('Contact Us') . '</a>',
+  );
+
+  $form['emailquote_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/">' . t('Email Quote') . '</a>',
+  );
 
   $form['submit_button'] = array(
     '#type' => 'submit',
@@ -251,16 +334,15 @@ function castleschool_finalquote_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'booking-form';
 }
 
-/*
- * Booking form
- */
+/* Booking Form */
+
 function castleschool_bookingform_form($form, &$form_state) {
 
   $markup = '<p>';
-  $markup .= 'If you want to secure a place on this course press "BOOK NOW" at the bottom of the form. After you send us the enrolment form we will email you to confirm your place.';
+  $markup .= t('If you want to secure a place on this course press "BOOK NOW" at the bottom of the form. After you send us the enrolment form we will email you to confirm your place.');
   $markup .= '</p>';
 
-  $form['details'] = array(
+  $form['intro'] = array(
     '#markup' => $markup,
   );
 
@@ -269,7 +351,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('First name'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['lastname'] = array(
@@ -277,7 +359,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Last name'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['dob'] = array(
@@ -285,7 +367,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Date of birth'),
     '#size' => 10,
     '#maxlength' => 10,
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#attributes' => array(
       'placeholder' => t('dd/mm/yyyy'),
     ),
@@ -299,7 +381,7 @@ function castleschool_bookingform_form($form, &$form_state) {
       t('Male') => t('Male'),
       t('Female') => t('Female'),
     ),
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -312,7 +394,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Nationality'),
     '#size' => 20,
     '#maxlength' => 20,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['passport'] = array(
@@ -320,7 +402,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Passport Number'),
     '#size' => 30,
     '#maxlength' => 30,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['telephone'] = array(
@@ -328,7 +410,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Telephone'),
     '#size' => 30,
     '#maxlength' => 30,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['email'] = array(
@@ -336,7 +418,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Email'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['address'] = array(
@@ -344,7 +426,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Address'),
     '#size' => 500,
     '#maxlength' => 500,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['nextofkin'] = array(
@@ -352,7 +434,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => 'Next of kin',
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['nextofkintelephone'] = array(
@@ -360,7 +442,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => 'Next of kin telephone',
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['nextofkinaddress'] = array(
@@ -368,13 +450,13 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Next of kin address'),
     '#size' => 500,
     '#maxlength' => 500,
-    '#required' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['married'] = array(
     '#type' => 'select',
     '#title' => 'Are you married?',
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -390,7 +472,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['smoke'] = array(
     '#type' => 'select',
     '#title' => 'Do you smoke?',
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -406,7 +488,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['medicalconditions'] = array(
     '#type' => 'select',
     '#title' => 'Do you have any medical conditions?',
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -422,7 +504,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['petallergies'] = array(
     '#type' => 'select',
     '#title' => 'Are you allergic to any animals?',
-    '#required' => TRUE,
+    '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
