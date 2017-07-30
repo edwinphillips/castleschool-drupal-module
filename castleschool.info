@@ -1,0 +1,8 @@
+name = Castle School
+description = Castle School Quote & Booking Forms.
+dependencies[] = simple_mail
+package = Castle School
+version = "7.x - 1.0"
+core = 7.x
+files[] = forms.inc
+files[] = functions.inc

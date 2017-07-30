@@ -1,0 +1,57 @@
+#block-castleschool-quote-castleschool-quote-block {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+#block-castleschool-quote-castleschool-quote-block .ajax-progress-throbber {
+    display: none
+}
+
+#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-iwanttostudy {
+    float: left;
+}
+
+#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-months {
+    float: left;
+    margin-left: 5%;
+}
+
+#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-day {
+    float: left;
+    margin-left: 5%;
+}
+
+#block-castleschool-quote-castleschool-quote-block .form-item-castleschool-quote-weeks {
+    float: left;
+    margin-left: 5%;
+}
+
+#block-castleschool-quote-castleschool-quote-block .form-submit {
+    margin-top: 25px;
+    float: left;
+}
+
+.castle-quote-wrapper {
+    width: 200px;
+    float: left;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.castle-quote-total {
+    display: block;
+    font-size: xx-large;
+    text-align: center;
+}
+
+.castle-quote-fees {
+    display: block;
+    font-size: small;
+    text-align: center;
+}
+
+.castle-quote-accomm {
+    font-size: x-small;
+    display: block;
+    text-align: center;
+}
