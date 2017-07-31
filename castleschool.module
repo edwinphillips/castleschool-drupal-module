@@ -4,6 +4,22 @@ module_load_include('inc', 'castleschool', 'functions');
 module_load_include('inc', 'castleschool', 'forms');
 
 /**
+ * Implements hook_menu().
+ */
+function castleschool_menu() {
+
+  $items = array();
+
+  $items['choose-your-accommodation/%'] = array(
+    'page callback' => 'castleschool_accommodation_selected',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_block_info().
  */
 function castleschool_block_info() {
@@ -112,7 +128,7 @@ function castleschool_block_view($delta='') {
       break;
     case 'castleschool_search_accomm' :
       $weeks = array();
-      for ($i = 4; $i >= 1; $i--) {
+      for ($i = $_SESSION['castleschool_quote_weeks']; $i >= 1; $i--) {
         $weeks[$i] = $i . ' week';
         if ($i > 1) {
           $weeks[$i] .= 's';

@@ -57,3 +57,48 @@
     display: block;
     text-align: center;
 }
+
+/* Choose your course */
+
+#castleschool-quote-block-form #edit-submit-button {
+    float: right;
+    margin-bottom: 25px;
+}
+
+/* Search for accommodation */
+
+#castleschool-search-for-accommodation-form #back_button {
+    margin-right: 15px;
+}
+
+#castleschool-search-for-accommodation-form #edit-search-button {
+    float: right;
+    margin-bottom: 25px;
+}
+
+/* Choose Accommodation */
+
+#castleschool-choose-accommodation-form #no_accommodation_button {
+    float: right;
+}
+
+/* Airport transfers */
+
+#castleschool-airport-transfers-form #edit-submit-button {
+    float: right;
+}
+
+/* Quote overview */
+
+.castleschool-quote-summary-price-item,
+.castleschool-quote-summary-totalprice-item {
+    width: 60%;
+    float: left;
+}
+
+.castleschool-quote-summary-price-ammount,
+.castleschool-quote-summary-totalprice-ammount {
+    width: 40%;
+    float: right;
+    text-align: right;
+}

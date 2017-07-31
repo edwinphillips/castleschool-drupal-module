@@ -24,7 +24,6 @@ function castleschool_quote_block_form($form, &$form_state, $weeks, $nodeid) {
   );
 
   $months = castleschool_quote_month_options();
-
   $selected = isset($form_state['values']['castleschool_quote_months']) ? $form_state['values']['castleschool_quote_months'] : key($months);
 
   $form['castleschool_quote_months'] = array(
@@ -130,6 +129,7 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
     '#type' => 'select',
     '#title' => t('How long do you want to stay?'),
     '#options' => $weeks,
+    '#default_value' => array_keys($weeks)[0],
     '#required' => FALSE,
     '#attributes' => array(
       'class' => array(
@@ -144,10 +144,11 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => TRUE,
+    '#element_validate' => array('element_validate_number'),
   );
 
   $form['back_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/choose-your-course">Back</a>'
+    '#markup' => '<a id="back_button" class="btn btn-warning" href="/choose-your-course">Back</a>'
   );
 
   $form['no_accommodation_button'] = array(
@@ -166,9 +167,14 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
 
 function castleschool_search_for_accommodation_form_validate($form, &$form_state) {
 
+  if (!empty($form_state['values']['age']) && $form_state['values']['age'] < 16) {
+    form_set_error('title', 'You must be at least 16 years old when you start your course');
+  }
 }
 
 function castleschool_search_for_accommodation_form_submit($form, &$form_state) {
+
+  /* Todo: Save session vars */
 
   $form_state['redirect'] = 'choose-your-accommodation';
 }
@@ -177,61 +183,52 @@ function castleschool_search_for_accommodation_form_submit($form, &$form_state) 
 
 function castleschool_choose_accommodation_form($form, &$form_state) {
 
-  $accommodationoptions = array(
-    array('aid' => 1, 'description' => 'Homestay (single room, half board)', 'price' => 145),
-    array('aid' => 2, 'description' => 'Homestay (twin room, half board)', 'price' => 125),
-    array('aid' => 3, 'description' => 'Room only (self-catering)', 'price' => 125),
-    array('aid' => 4, 'description' => 'Self-catering Twin room', 'price' => 105),
-  );
-
-  $header = array(
-    'description' => t('Description'),
-    'price' => t('Price'),
-  );
-
-  $options = array();
-  foreach($accommodationoptions as $accommodationoption) {
-    $options[$accommodationoption['aid']] = array(
-      'description' => $accommodationoption['description'],
-      'price' => '£' . $accommodationoption['price'],
-    );
-  }
-
   $form['table'] = array(
-    '#type' => 'tableselect',
-    '#header' => $header,
-    '#options' => $options,
-    '#multiple' => FALSE,
-    '#required' => TRUE,
+    '#markup' => castleschool_accommodation_selection_table(),
   );
 
   $form['back_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/search-for-accommodation">Back</a>'
+    '#markup' => '<a class="btn btn-warning" href="/search-for-accommodation">' .t('Back') .'</a>',
   );
 
   $form['no_accommodation_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/airport-transfers">I don\'t require accommodation</a>'
-  );
-
-  $form['submit'] = array  (
-    '#type' => 'submit',
-    '#name' => 'submit',
-    '#value' => t('Submit'),
-    '#submit' => array('castleschool_choose_accommodation_form_submit'),
+    '#markup' => '<a id="no_accommodation_button" class="btn btn-warning" href="/airport-transfers">' . t('I don\'t require accommodation') . '</a>',
   );
 
   return $form;
 }
 
-function castleschool_choose_accommodation_form_validate($form, &$form_state) {
+function castleschool_accommodation_selection_table() {
 
-}
+  $weeks = $_SESSION['castleschool_quote_weeks'];
 
-function castleschool_choose_accommodation_form_submit($form, &$form_state) {
+  $header = array();
+  $rows = array(
+    array(
+      '<h5>Homestay (single room, half board) - <strong>£' . 145 * $weeks . '</strong></h5>',
+      '<a class="btn btn-submit" href="/choose-your-accommodation/1">' .t('Select') .'</a>',
+    ),
+    array(
+      '<h5>Homestay (twin room, half board) - <strong>£' . 125 * $weeks . '</strong></h5>',
+      '<a class="btn btn-submit" href="/choose-your-accommodation/2">' .t('Select') .'</a>',
+    ),
+    array(
+      '<h5>Room only (self-catering) - <strong>£' . 125 * $weeks . '</strong></h5>',
+      '<a class="btn btn-submit" href="/choose-your-accommodation/3">' .t('Select') .'</a>',
+    ),
+    array(
+      '<h5>Self-catering Twin room - <strong>£' . 105 * $weeks . '</strong></h5>',
+      '<a class="btn btn-submit" href="/choose-your-accommodation/4">' .t('Select') .'</a>',
+    ),
+  );
 
-  // Note: Selection = $form_state['values']['table']
-
-  $form_state['redirect'] = 'airport-transfers';
+  return theme(
+    'table',
+    array(
+      'header' => $header,
+      'rows' => $rows
+    )
+  );
 }
 
 /* Airport Transfers Form */
@@ -299,7 +296,6 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
 
   $form_state['redirect'] = 'your-quote';
 }
-
 
 /* Final Quote Form */
 

@@ -9,9 +9,21 @@
 function castleschool_quote_month_options() {
 
   $months = array();
-  $currentmonth = (int)date('m');
+  $startmonth = (int)date('n');
 
-  for ($x = $currentmonth; $x < $currentmonth + 18; $x++) {
+  $monthdays = (int)date('t');
+  $mondaysinthismonth = array();
+  for ($i = (int)date('j') + 1; $i <= $monthdays; $i++) {
+    if ((date('w', mktime(0, 0, 0, $startmonth, $i))) == 1) {
+      $mondaysinthismonth[] = 1;
+    }
+  }
+
+  if (empty($mondaysinthismonth)) {
+    $startmonth += 1;
+  }
+
+  for ($x = $startmonth; $x < $startmonth + 18; $x++) {
     $months[mktime(0, 0, 0, $x, 1)] = date('F Y', mktime(0, 0, 0, $x, 1));
   }
 
@@ -72,10 +84,57 @@ function castleschool_quote_block_get_mondays($timestamp) {
  */
 function castleschool_quotesummary_content() {
 
-  $markup = 'I want to study: ' . $_SESSION['castleschool_quote_iwanttostudy'] . '<br/>';
-  $markup .= 'Starting: ' . date('l jS F Y', $_SESSION['castleschool_quote_day']) . '<br/>';
-  $markup .= 'Duration: ' . $_SESSION['castleschool_quote_weeks'] . ' weeks<br/>';
-  $markup .= 'Total: £' . $_SESSION['quotetotal'] . '<br/>';
+  $durationindays = ($_SESSION['castleschool_quote_weeks'] * 7) - 3;
+
+  $markup = '<h4>Quote summary</h4>';
+  $markup .= '<h6>' . $_SESSION['castleschool_quote_iwanttostudy'] . '<br/>';
+  $markup .= date('M j, Y', $_SESSION['castleschool_quote_day']) . ' - ';
+  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_quote_day'])) . '</h6>';
+
+  // Prices
+  $markup .= '<div class="castleschool-quote-summary-price">';
+  $markup .= '<div class="castleschool-quote-summary-price-item">';
+  $markup .= '<h6>' . t('Course') . '</h6>';
+  $markup .= '</div>';
+  $markup .= '<div class="castleschool-quote-summary-price-ammount">';
+  $markup .= '<h6>£' . $_SESSION['quotetotal'] . '</h6>';
+  $markup .= '</div>';
+  $markup .= '</div>';
+
+  $markup .= '<div class="castleschool-quote-summary-price">';
+  $markup .= '<div class="castleschool-quote-summary-price-item">';
+  $markup .= '<h6>' . t('Accommodation') . '</h6>';
+  $markup .= '</div>';
+  $markup .= '<div class="castleschool-quote-summary-price-ammount">';
+  $markup .= '<h6>£0</h6>';
+  $markup .= '</div>';
+  $markup .= '</div>';
+
+  $markup .= '<div class="castleschool-quote-summary-price">';
+  $markup .= '<div class="castleschool-quote-summary-price-item">';
+  $markup .= '<h6>' . t('Optional Extras') . '</h6>';
+  $markup .= '</div>';
+  $markup .= '<div class="castleschool-quote-summary-price-ammount">';
+  $markup .= '<h6>£0</h6>';
+  $markup .= '</div>';
+  $markup .= '</div>';
+
+  // Total Price
+  $markup .= '<div class="castleschool-quote-summary-totalprice">';
+  $markup .= '<div class="castleschool-quote-summary-totalprice-item">';
+  $markup .= '<h5>' . t('Total Price') . '</h5>';
+  $markup .= '</div>';
+  $markup .= '<div class="castleschool-quote-summary-totalprice-ammount">';
+  $markup .= '<h5>£' . $_SESSION['quotetotal'] . '</h5>';
+  $markup .= '</div>';
+  $markup .= '</div>';
 
   return $markup;
+}
+
+function castleschool_accommodation_selected($selection) {
+
+  // Todo: Save session data.
+
+  drupal_goto('airport-transfers');
 }
