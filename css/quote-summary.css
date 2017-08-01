@@ -1,0 +1,14 @@
+/* Quote summary */
+
+.castleschool-quote-summary-price-item,
+.castleschool-quote-summary-totalprice-item {
+    width: 60%;
+    float: left;
+}
+
+.castleschool-quote-summary-price-ammount,
+.castleschool-quote-summary-totalprice-ammount {
+    width: 40%;
+    float: right;
+    text-align: right;
+}

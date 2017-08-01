@@ -1,15 +1,14 @@
 <?php
 
-/* Choose Your Course Form */
+/* Teaser Form */
 
-function castleschool_quote_block_form($form, &$form_state, $weeks, $nodeid) {
+function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
 
   $form['castleschool_quote_iwanttostudy'] = array(
     '#type' => 'select',
     '#title' => t('I want to study'),
     '#default_value' => $form->castleschool_quote_iwanttostudy,
     '#options' => array(
-      '' => t('- Select -'),
       t('General English') => t('General English'),
       t('Cambridge Exam Prep') => t('Cambridge Exam Prep'),
       t('IELTS') => t('IELTS'),
@@ -73,34 +72,29 @@ function castleschool_quote_block_form($form, &$form_state, $weeks, $nodeid) {
     '#default_value' => 1080,
   );
 
-  if ($nodeid == 110) {
-    $markup = '<div class="castle-quote-wrapper">';
-    $markup .= '<span data-bind="text: value" class="castle-quote-total">£1080</span>';
-    $markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
-    $markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from <span data-bind="text: value">£600</span></span>';
-    $markup .= '</div>';
+  $markup = '<div class="castle-quote-wrapper">';
+  $markup .= '<span data-bind="text: value" class="castle-quote-total">£1080</span>';
+  $markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
+  $markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from <span data-bind="text: value">£600</span></span>';
+  $markup .= '</div>';
 
-    $form['quote'] = array(
-      '#markup' => $markup,
-    );
-    $submitbuttonvalue = t('Continue');
-  } else {
-    $submitbuttonvalue = t('Start Quote');
-  }
+  $form['quote'] = array(
+    '#markup' => $markup,
+  );
 
   $form['submit_button'] = array(
     '#type' => 'submit',
-    '#value' => $submitbuttonvalue,
+    '#value' => t('Continue'),
   );
 
   return $form;
 }
 
-function castleschool_quote_block_form_validate($form, &$form_state) {
+function castleschool_teaser_form_validate($form, &$form_state) {
 
 }
 
-function castleschool_quote_block_form_submit($form, &$form_state) {
+function castleschool_teaser_form_submit($form, &$form_state) {
 
   $_SESSION['castleschool_quote_iwanttostudy'] = $form_state['values']['castleschool_quote_iwanttostudy'];
   $_SESSION['castleschool_quote_months'] = $form_state['values']['castleschool_quote_months'];
@@ -115,6 +109,95 @@ function castleschool_quote_select_callback($form, $form_state) {
   $form['castleschool_quote_day']['#options'] = castleschool_quote_block_get_mondays($form['castleschool_quote_months']['#default_value']);
 
   return $form['castleschool_quote_day'];
+}
+
+/* Choose Your Course Form */
+
+function castleschool_choose_course_form($form, &$form_state, $weeks) {
+
+  $form['iwanttostudy'] = array(
+    '#type' => 'select',
+    '#title' => t('I want to study'),
+    '#default_value' => $form->iwanttostudy,
+    '#options' => array(
+      t('General English') => t('General English'),
+      t('Cambridge Exam Prep') => t('Cambridge Exam Prep'),
+      t('IELTS') => t('IELTS'),
+      t('One to one') => t('One to one'),
+    ),
+    '#default_value' => t('General English'),
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $months = castleschool_quote_month_options();
+  $selected = isset($form_state['values']['months']) ? $form_state['values']['months'] : key($months);
+
+  $form['months'] = array(
+    '#type' => 'select',
+    '#title' => t('From'),
+    '#options' => $months,
+    '#default_value' => $selected,
+    '#ajax' => array(
+      'callback' => 'castleschool_quote_select_callback',
+      'wrapper' => 'castleschool_quote_day_wrapper',
+    ),
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $form['firstday'] = array(
+    '#type' => 'select',
+    '#title' => t(' '),
+    '#prefix' => '<div id="castleschool_quote_day_wrapper">',
+    '#suffix' => '</div>',
+    '#options' => castleschool_quote_block_get_mondays($selected),
+    '#default_value' => isset($form_state['values']['firstday']) ? $form_state['values']['firstday'] : '',
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $form['weeks'] = array(
+    '#type' => 'select',
+    '#title' => t('For'),
+    '#default_value' => isset($form->weeks) ? $form->weeks : 4,
+    '#options' => $weeks,
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $form['quotetotal'] = array(
+    '#type' => 'hidden',
+    '#default_value' => 1080,
+  );
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Start Quote'),
+  );
+
+  return $form;
+}
+
+function castleschool_choose_course_form_validate($form, &$form_state) {
+
+}
+
+function castleschool_choose_course_form_submit($form, &$form_state) {
+
+  $form_state['redirect'] = 'search-for-accommodation';
 }
 
 /* Search for Accommodation form */

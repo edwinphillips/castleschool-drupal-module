@@ -4,6 +4,18 @@ module_load_include('inc', 'castleschool', 'functions');
 module_load_include('inc', 'castleschool', 'forms');
 
 /**
+ * Implements hook_permission().
+ */
+function castleschool_permission() {
+  return array(
+    'Modify Castle School settings' =>  array(
+      'title' => t('Modify Castle School settings'),
+      'description' => t('Administer Castle School settings.'),
+    ),
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function castleschool_menu() {
@@ -16,7 +28,41 @@ function castleschool_menu() {
     'access arguments' => array('access content'),
   );
 
+  $items['admin/settings/castleschool'] = array(
+    'title' => 'Castle School',
+    'description' => 'Castle School module settings control',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('castleschool_admin'),
+    'access arguments' => array('Modify Castle School settings'),
+    'type' => MENU_NORMAL_ITEM
+  );
+
+  $items['admin/settings/castleschool/choosecourse'] = array(
+    'title' => 'Choose Your Course Form',
+    'description' => 'Settings for Choose Your Course Form.',
+    'page callback' => '', // 'uc_store_reports',
+    'access arguments' => array('Modify Castle School settings'),
+    'weight' => 2,
+    'file' => '', // 'uc_store.admin.inc',
+    'position' => 'right',
+  );
+
   return $items;
+}
+
+/**
+ * Implements hook_admin().
+ */
+function castleschool_admin() {
+
+  $form['general'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('General Configuration'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  return system_settings_form($form);
 }
 
 /**
@@ -25,8 +71,8 @@ function castleschool_menu() {
 function castleschool_block_info() {
 
   return array(
-    'castleschool_block_quote_small' => array(
-      'info' => t('Castle School Quote Form Block (Small)'),
+    'castleschool_teaser' => array(
+      'info' => t('Castle School Quote Teaser Form'),
     ),
     'castleschool_choose_course' => array(
       'info' => t('Castle School Choose Your Course Form'),
@@ -59,7 +105,7 @@ function castleschool_block_configure($delta='') {
   $form = array();
 
   switch($delta) {
-    case 'castleschool_block_quote_small' :
+    case 'castleschool_teaser' :
       break;
     case 'castleschool_choose_course' :
       break;
@@ -86,7 +132,7 @@ function castleschool_block_configure($delta='') {
 function castleschool_block_save($delta = '', $edit = array()) {
 
   switch($delta) {
-    case 'castleschool_block_quote_small' :
+    case 'castleschool_teaser' :
       break;
     case 'castleschool_choose_course' :
       break;
@@ -112,8 +158,7 @@ function castleschool_block_view($delta='') {
   $block = array();
 
   switch($delta) {
-    case 'castleschool_block_quote_small' :
-    case 'castleschool_choose_course' :
+    case 'castleschool_teaser' :
       $weeks = array();
       for ($i = 1; $i <= 23; $i++) {
         $weeks[$i] = $i . ' week';
@@ -123,7 +168,49 @@ function castleschool_block_view($delta='') {
       }
       $node = menu_get_object();
       $block['content'] = array(
-        drupal_get_form('castleschool_quote_block_form', $weeks, $node->vid),
+        drupal_get_form('castleschool_teaser_form', $weeks),
+      );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/teaser.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/teaser.js',
+          ),
+        ),
+      );
+      break;
+    case 'castleschool_choose_course' :
+      $weeks = array();
+      for ($i = 1; $i <= 23; $i++) {
+        $weeks[$i] = $i . ' week';
+        if ($i > 1) {
+          $weeks[$i] .= 's';
+        }
+      }
+      $block['content'] = array(
+        drupal_get_form('castleschool_choose_course_form', $weeks),
+      );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/choose-your-course.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/choose-your-course.js',
+          ),
+        ),
       );
       break;
     case 'castleschool_search_accomm' :
@@ -137,15 +224,60 @@ function castleschool_block_view($delta='') {
       $block['content'] = array(
         drupal_get_form('castleschool_search_for_accommodation_form', $weeks),
       );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/search-for-accommodation.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/search-for-accommodation.js',
+          ),
+        ),
+      );
       break;
     case 'castleschool_choose_accomm' :
       $block['content'] = array(
         drupal_get_form('castleschool_choose_accommodation_form'),
       );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/choose-accommodation.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/choose-accommodation.js',
+          ),
+        ),
+      );
       break;
     case 'castleschool_airport_transfers' :
       $block['content'] = array(
         drupal_get_form('castleschool_airport_transfers_form'),
+      );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/airport-transfers.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/airport-transfers.js',
+          ),
+        ),
       );
       break;
     case 'castleschool_finalquote' :
@@ -162,24 +294,23 @@ function castleschool_block_view($delta='') {
       $block['content'] = array(
         '#markup' => castleschool_quotesummary_content(),
       );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/quote-summary.css',
+          ),
+        ),
+        'js' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/js/quote-summary.js',
+          ),
+        ),
+      );
       break;
   }
-
-  $path = drupal_get_path('module', 'castleschool');
-  $block['content']['#attached'] = array(
-    'css' => array(
-      array(
-        'type' => 'file',
-        'data' => $path . '/css/castleschool.css',
-      ),
-    ),
-    'js' => array(
-      array(
-        'type' => 'file',
-        'data' => $path . '/js/castleschool.js',
-      ),
-    ),
-  );
 
   return $block;
 }

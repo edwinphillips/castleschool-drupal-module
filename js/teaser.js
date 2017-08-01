@@ -5,15 +5,6 @@ jQuery(document).ajaxComplete(function(event, xhr, settings) {
 });
 
 jQuery('#edit-castleschool-quote-iwanttostudy').on('change', function() {
-  if (!jQuery('#edit-castleschool-quote-iwanttostudy').val()) {
-      jQuery('#edit-castleschool-quote-months').prop('disabled', 'disabled');
-      jQuery('select[name="castleschool_quote_day"]').prop('disabled', 'disabled');
-      jQuery('#edit-castleschool-quote-weeks').prop('disabled', 'disabled');
-  } else {
-      jQuery('#edit-castleschool-quote-months').prop('disabled', false);
-      jQuery('select[name="castleschool_quote_day"]').prop('disabled', false);
-      jQuery('#edit-castleschool-quote-weeks').prop('disabled', false);
-  }
   updatequote();
 });
 
