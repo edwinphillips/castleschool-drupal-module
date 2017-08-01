@@ -9,23 +9,28 @@
     display: none
 }
 
-#block-castleschool-castleschool-teaser .form-item-castleschool-quote-iwanttostudy {
+#block-castleschool-castleschool-teaser .form-item-iwanttostudy {
     float: left;
 }
 
-#block-castleschool-castleschool-teaser .form-item-castleschool-quote-months {
+#block-castleschool-castleschool-teaser .form-item-month {
     float: left;
-    margin-left: 5%;
+    margin-left: 2%;
 }
 
-#block-castleschool-castleschool-teaser .form-item-castleschool-quote-day {
+#block-castleschool-castleschool-teaser .form-item-day {
     float: left;
-    margin-left: 5%;
+    margin-left: 2%;
 }
 
-#block-castleschool-castleschool-teaser .form-item-castleschool-quote-weeks {
+#block-castleschool-castleschool-teaser .form-item-weeks {
     float: left;
-    margin-left: 5%;
+    margin-left: 2%;
+}
+
+#block-castleschool-castleschool-teaser .form-item-hoursperweek {
+    float: left;
+    margin-left: 2%;
 }
 
 #block-castleschool-castleschool-teaser .form-submit {

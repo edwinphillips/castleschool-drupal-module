@@ -4,17 +4,22 @@
 
 function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
 
-  $form['castleschool_quote_iwanttostudy'] = array(
+  $courseselected = isset($form_state['values']['iwanttostudy']) ? $form_state['values']['iwanttostudy'] : t('General English');
+
+  $form['iwanttostudy'] = array(
     '#type' => 'select',
     '#title' => t('I want to study'),
-    '#default_value' => $form->castleschool_quote_iwanttostudy,
     '#options' => array(
       t('General English') => t('General English'),
       t('Cambridge Exam Prep') => t('Cambridge Exam Prep'),
       t('IELTS') => t('IELTS'),
       t('One to one') => t('One to one'),
     ),
-    '#default_value' => t('General English'),
+    '#default_value' => $courseselected,
+    '#ajax' => array(
+      'callback' => 'castleschool_hoursperweek_callback',
+      'wrapper' => 'castleschool_hoursperweek_wrapper',
+    ),
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -23,16 +28,16 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   );
 
   $months = castleschool_quote_month_options();
-  $selected = isset($form_state['values']['castleschool_quote_months']) ? $form_state['values']['castleschool_quote_months'] : key($months);
+  $selected = isset($form_state['values']['month']) ? $form_state['values']['month'] : key($months);
 
-  $form['castleschool_quote_months'] = array(
+  $form['month'] = array(
     '#type' => 'select',
     '#title' => t('From'),
     '#options' => $months,
     '#default_value' => $selected,
     '#ajax' => array(
-      'callback' => 'castleschool_quote_select_callback',
-      'wrapper' => 'castleschool_quote_day_wrapper',
+      'callback' => 'castleschool_day_callback',
+      'wrapper' => 'castleschool_day_wrapper',
     ),
     '#attributes' => array(
       'class' => array(
@@ -41,13 +46,13 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
     ),
   );
 
-  $form['castleschool_quote_day'] = array(
+  $form['day'] = array(
     '#type' => 'select',
-    '#title' => t(' '),
-    '#prefix' => '<div id="castleschool_quote_day_wrapper">',
+    '#title' => t('&nbsp;'),
+    '#prefix' => '<div id="castleschool_day_wrapper">',
     '#suffix' => '</div>',
     '#options' => castleschool_quote_block_get_mondays($selected),
-    '#default_value' => isset($form_state['values']['castleschool_quote_day']) ? $form_state['values']['castleschool_quote_day'] : '',
+    '#default_value' => isset($form_state['values']['day']) ? $form_state['values']['day'] : '',
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -55,11 +60,25 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
     ),
   );
 
-  $form['castleschool_quote_weeks'] = array(
+  $form['weeks'] = array(
     '#type' => 'select',
     '#title' => t('For'),
-    '#default_value' => isset($form->castleschool_quote_weeks) ? $form->castleschool_quote_weeks : 4,
+    '#default_value' => isset($form->weeks) ? $form->weeks : 4,
     '#options' => $weeks,
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $form['hoursperweek'] = array(
+    '#type' => 'select',
+    '#title' => '@',
+    '#prefix' => '<div id="castleschool_hoursperweek_wrapper">',
+    '#suffix' => '</div>',
+    '#options' => castleschool_get_hoursperweek($courseselected),
+    '#default_value' => isset($form_state['values']['day']) ? $form_state['values']['day'] : '',
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -90,25 +109,58 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   return $form;
 }
 
-function castleschool_teaser_form_validate($form, &$form_state) {
-
-}
-
 function castleschool_teaser_form_submit($form, &$form_state) {
 
-  $_SESSION['castleschool_quote_iwanttostudy'] = $form_state['values']['castleschool_quote_iwanttostudy'];
-  $_SESSION['castleschool_quote_months'] = $form_state['values']['castleschool_quote_months'];
-  $_SESSION['castleschool_quote_day'] = $form_state['values']['castleschool_quote_day'];
-  $_SESSION['castleschool_quote_weeks'] = $form_state['values']['castleschool_quote_weeks'];
-  $_SESSION['quotetotal'] = $form_state['values']['quotetotal'];
+  $_SESSION['castleschool_iwanttostudy'] = $form_state['values']['iwanttostudy'];
+  $_SESSION['castleschool_month']        = $form_state['values']['month'];
+  $_SESSION['castleschool_day']          = $form_state['values']['day'];
+  $_SESSION['castleschool_weeks']        = $form_state['values']['weeks'];
+  $_SESSION['castleschool_quotetotal']   = $form_state['values']['quotetotal'];
 
   $form_state['redirect'] = 'search-for-accommodation';
 }
 
-function castleschool_quote_select_callback($form, $form_state) {
-  $form['castleschool_quote_day']['#options'] = castleschool_quote_block_get_mondays($form['castleschool_quote_months']['#default_value']);
+function castleschool_hoursperweek_callback($form, $form_state) {
+  $form['hoursperweek']['#options'] = castleschool_get_hoursperweek($form['iwanttostudy']['#default_value']);
 
-  return $form['castleschool_quote_day'];
+  return $form['hoursperweek'];
+}
+
+function castleschool_day_callback($form, $form_state) {
+  $form['day']['#options'] = castleschool_quote_block_get_mondays($form['month']['#default_value']);
+
+  return $form['day'];
+}
+
+function castleschool_get_hoursperweek($courseselected) {
+
+  switch ($courseselected) {
+    case t('General English'):
+      $array = array(
+        15 => '15 hours per week',
+        21 => '21 hours per week',
+        24 => '24 hours per week',
+        30 => '30 hours per week'
+      );
+      break;
+    case t('Cambridge Exam Prep'):
+      $array = array(
+        15 => '15 hours per week',
+      );
+      break;
+    case t('IELTS'):
+      $array = array(
+        15 => '15 hours per week',
+      );
+      break;
+    case t('One to one'):
+      $array = array(
+        10 => '10 hours per week',
+      );
+      break;
+  }
+
+  return $array;
 }
 
 /* Choose Your Course Form */
@@ -283,7 +335,7 @@ function castleschool_choose_accommodation_form($form, &$form_state) {
 
 function castleschool_accommodation_selection_table() {
 
-  $weeks = $_SESSION['castleschool_quote_weeks'];
+  $weeks = $_SESSION['weeks'];
 
   $header = array();
   $rows = array(

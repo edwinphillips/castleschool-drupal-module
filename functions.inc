@@ -89,7 +89,8 @@ function castleschool_quotesummary_content() {
   $markup = '<h4>Quote summary</h4>';
   $markup .= '<h6>' . $_SESSION['castleschool_quote_iwanttostudy'] . '<br/>';
   $markup .= date('M j, Y', $_SESSION['castleschool_quote_day']) . ' - ';
-  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_quote_day'])) . '</h6>';
+  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_quote_day'])) . '<br/>';
+  $markup .= '15 hours per week</h6>';
 
   // Prices
   $markup .= '<div class="castleschool-quote-summary-price">';
