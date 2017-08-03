@@ -28,6 +28,14 @@ function castleschool_menu() {
     'access arguments' => array('access content'),
   );
 
+  $items['castleschool/quote/%/%/%/%'] = array(
+    'page callback' => 'castleschool_get_quote',
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2,3,4,5),
+    'access arguments' => array('access content'),
+    'delivery callback' => 'castleschool_get_quote_callback',
+  );
+
   $items['admin/settings/castleschool'] = array(
     'title' => 'Castle School',
     'description' => 'Castle School module settings control',
@@ -215,7 +223,7 @@ function castleschool_block_view($delta='') {
       break;
     case 'castleschool_search_accomm' :
       $weeks = array();
-      for ($i = $_SESSION['castleschool_quote_weeks']; $i >= 1; $i--) {
+      for ($i = $_SESSION['castleschool_weeks']; $i >= 1; $i--) {
         $weeks[$i] = $i . ' week';
         if ($i > 1) {
           $weeks[$i] .= 's';

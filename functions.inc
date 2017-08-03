@@ -1,12 +1,34 @@
 <?php
 
 /**
+ * Returns an associative array of course ids and course names.
+ *
+ * @return array
+ */
+function castleschool_get_courses() {
+  $courses = array(
+    1 => t('General English'),
+    2 => t('Cambridge Exam Prep'),
+    3 => t('IELTS'),
+    4 => t('One to one'),
+  );
+
+  return $courses;
+}
+
+function castleschool_get_airport_transfers() {
+
+  $transfers = array();
+
+  return $transfers;
+}
+/**
  * Returns an associative array of the next 18 months as
  * timestamps and friendly name values.
  *
  * @return array
  */
-function castleschool_quote_month_options() {
+function castleschool_get_months() {
 
   $months = array();
   $startmonth = (int)date('n');
@@ -37,7 +59,7 @@ function castleschool_quote_month_options() {
  * @param int $timestamp
  * @return array
  */
-function castleschool_quote_block_get_mondays($timestamp) {
+function castleschool_get_mondays_in_month($timestamp) {
 
   $now = time();
   $mondays = array();
@@ -84,13 +106,14 @@ function castleschool_quote_block_get_mondays($timestamp) {
  */
 function castleschool_quotesummary_content() {
 
-  $durationindays = ($_SESSION['castleschool_quote_weeks'] * 7) - 3;
+  $courses = castleschool_get_courses();
+  $durationindays = ($_SESSION['castleschool_weeks'] * 7) - 3;
 
   $markup = '<h4>Quote summary</h4>';
-  $markup .= '<h6>' . $_SESSION['castleschool_quote_iwanttostudy'] . '<br/>';
-  $markup .= date('M j, Y', $_SESSION['castleschool_quote_day']) . ' - ';
-  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_quote_day'])) . '<br/>';
-  $markup .= '15 hours per week</h6>';
+  $markup .= '<h6>' . $courses[$_SESSION['castleschool_course']] . '<br/>';
+  $markup .= date('M j, Y', $_SESSION['castleschool_day']) . ' - ';
+  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_day'])) . '<br/>';
+  $markup .= $_SESSION['castleschool_hoursperweek'] . t(' hours per week') . '</h6>';
 
   // Prices
   $markup .= '<div class="castleschool-quote-summary-price">';
@@ -107,7 +130,7 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>' . t('Accommodation') . '</h6>';
   $markup .= '</div>';
   $markup .= '<div class="castleschool-quote-summary-price-ammount">';
-  $markup .= '<h6>£0</h6>';
+  $markup .= '<h6>£' . $_SESSION['accommodationtotal'] . '</h6>';
   $markup .= '</div>';
   $markup .= '</div>';
 
@@ -136,6 +159,38 @@ function castleschool_quotesummary_content() {
 function castleschool_accommodation_selected($selection) {
 
   // Todo: Save session data.
+  switch ($selection) {
+    case 1:
+      $accommodationfee = 145;
+      break;
+    case 2:
+      $accommodationfee = 125;
+      break;
+    case 3:
+      $accommodationfee = 125;
+      break;
+    case 4:
+      $accommodationfee = 105;
+      break;
+  }
+
+  $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
 
   drupal_goto('airport-transfers');
+}
+
+function castleschool_get_quote($course, $hoursperweek, $startdate, $weeks) {
+
+  drupal_json_output(
+    array(
+      'course' => $course,
+      'hoursperweek' => $hoursperweek,
+      'startdate' => $startdate,
+      'weeks' => $weeks,
+    )
+  );
+}
+
+function castleschool_get_quote_callback() {
+
 }
