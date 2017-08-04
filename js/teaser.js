@@ -21,9 +21,8 @@
         function updatequote() {
             var course = $('select[name="course"]').val();
             var hoursperweek = $('select[name="hoursperweek"]').val();
-            var startdate = $('select[name="day"]').val();
             var weeks = $('select[name="weeks"]').val();
-            $('.castle-quote-wrapper').load('castleschool/quote/' + course + '/' + hoursperweek + '/' + startdate + '/' + weeks);
+            $('.castle-quote-wrapper').load('castleschool/quote/' + course + '/' + hoursperweek + '/' + weeks);
             $.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2");
         }
     }
