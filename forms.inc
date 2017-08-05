@@ -10,7 +10,7 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   $form['course'] = array(
     '#type' => 'select',
     '#title' => t('I want to study'),
-    '#options' => castleschool_get_courses(),
+    '#options' => castleschool_get_course_names(),
     '#default_value' => $courseselected,
     '#ajax' => array(
       'callback' => 'castleschool_hoursperweek_callback',
@@ -136,7 +136,7 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
     '#type' => 'select',
     '#title' => t('I want to study'),
     '#default_value' => $form->course,
-    '#options' => castleschool_get_courses(),
+    '#options' => castleschool_get_course_names(),
     '#default_value' => 1,
     '#attributes' => array(
       'class' => array(
@@ -426,28 +426,91 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
 
 function castleschool_finalquote_form($form, &$form_state) {
 
+  $markup = '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Course') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">' . castleschool_get_course_name($_SESSION['castleschool_course'])
+      . ' - ' . $_SESSION['castleschool_hoursperweek'] . t(' hours per week') . '<br/>'
+      . castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']) . '<br/>' 
+      . t('Length') . ': ' . $_SESSION['castleschool_weeks'] . ' ' . t('weeks') . '</p></td>';
+  $markup .= '<td class="price"><p>£' . $_SESSION['castleschool_coursequote'] . '</p></td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">' . t('Registration Fee') . '</p></td>';
+  $markup .= '<td class="price"><p>£' . castleschool_get_registration_fee() . '</p></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Accommodation') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">Homestay, Standard Single room, Bed & breakfast<br/>Aug 12, 2017 – Sep 9, 2017<br/>Duration: 4 weeks</p></td>';
+  $markup .= '<td class="price"><p>£620</p></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Optional Extras') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">London Heathrow Airport - Arrival</p></td>';
+  $markup .= '<td class="price"><p>£135</p></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Total Price') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>£2035</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $form['quotetable'] = array(
+    '#markup' => $markup,
+  );
+
   $form['back_button'] = array(
     '#markup' => '<a class="btn btn-warning" href="/airport-transfers">' . t('Back') . '</a>',
   );
 
-  $form['contactus_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/">' . t('Contact Us') . '</a>',
-  );
-
-  $form['emailquote_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/">' . t('Email Quote') . '</a>',
-  );
-
+  $buttonmarkup = '<div id="castleschool_button_wrapper">';
+  $buttonmarkup .= '<a class="btn btn-warning" href="/quote-contact">' . t('Contact Us') . '</a>';
+  $buttonmarkup .= '<a class="btn btn-warning" href="/quote-email">' . t('Email Quote') . '</a>';
   $form['submit_button'] = array(
     '#type' => 'submit',
     '#value' => t('Book now'),
+    '#prefix' => $buttonmarkup,
+    '#suffix' => '</div>',
   );
 
   return $form;
-}
-
-function castleschool_finalquote_form_validate($form, &$form_state) {
-
 }
 
 function castleschool_finalquote_form_submit($form, &$form_state) {

@@ -1,11 +1,34 @@
 <?php
 
 /**
+ * Returns registration fee value
+ *
+ * @return int
+ */
+function castleschool_get_registration_fee() {
+
+  return 80;
+}
+
+/**
+ * Returns course name from passed course Id
+ *
+ * @param int $courseid Course Id
+ * @return string
+ */
+function castleschool_get_course_name($courseid) {
+
+  $courses = castleschool_get_course_names();
+
+  return $courses[$courseid];
+}
+
+/**
  * Returns an associative array of course ids and course names.
  *
  * @return array
  */
-function castleschool_get_courses() {
+function castleschool_get_course_names() {
 
   $courses = array();
   $coursedetails = castleschool_course_details();
@@ -320,6 +343,20 @@ function castleschool_get_mondays_in_month($timestamp) {
 }
 
 /**
+ * Returns date formatted string of course start and end dates
+ *
+ * @param int $startdate Timestamp of start date
+ * @param int $weeks Number of weeks of course
+ * @return string
+ */
+function castleschool_get_course_dates($startdate, $weeks) {
+
+  $durationindays = ($weeks * 7) - 3;
+
+  return date('M j, Y', $startdate) . ' - ' . date('M j, Y', strtotime("+{$durationindays} day", $startdate));
+}
+
+/**
  * Returns HTML to populate the quote summary block.
  *
  * @return string
@@ -330,13 +367,10 @@ function castleschool_quotesummary_content() {
   $accommodationtotal = $_SESSION['accommodationtotal'];
   $airporttransferquote = $_SESSION['airporttransferquote'];
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
-  $courses = castleschool_get_courses();
-  $durationindays = ($_SESSION['castleschool_weeks'] * 7) - 3;
 
   $markup = '<h4>Quote summary</h4>';
-  $markup .= '<h6>' . $courses[$_SESSION['castleschool_course']] . '<br/>';
-  $markup .= date('M j, Y', $_SESSION['castleschool_day']) . ' - ';
-  $markup .= date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['castleschool_day'])) . '<br/>';
+  $markup .= '<h6>' . castleschool_get_course_name($_SESSION['castleschool_course']) . '<br/>';
+  $markup .= castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']) . '<br/>';
   $markup .= $_SESSION['castleschool_hoursperweek'] . t(' hours per week') . '</h6>';
 
   // Prices

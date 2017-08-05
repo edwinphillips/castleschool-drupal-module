@@ -1,0 +1,13 @@
+/* Your Quote */
+
+#castleschool-finalquote-form .price {
+    width: 10%;
+}
+
+#castleschool_button_wrapper {
+    float: right;
+}
+
+#castleschool_button_wrapper .btn-warning {
+    margin-right: 10px;
+}

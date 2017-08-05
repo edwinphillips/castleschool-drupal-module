@@ -282,6 +282,15 @@ function castleschool_block_view($delta='') {
       $block['content'] = array(
         drupal_get_form('castleschool_finalquote_form'),
       );
+      $path = drupal_get_path('module', 'castleschool');
+      $block['content']['#attached'] = array(
+        'css' => array(
+          array(
+            'type' => 'file',
+            'data' => $path . '/css/your-quote.css',
+          ),
+        ),
+      );
       break;
     case 'castleschool_booking_form' :
       $block['content'] = array(
