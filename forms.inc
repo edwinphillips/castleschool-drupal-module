@@ -101,6 +101,10 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
 
 function castleschool_teaser_form_submit($form, &$form_state) {
 
+  unset($_SESSION['accommodationstartdate']);
+  unset($_SESSION['accommodationtotal']);
+  unset($_SESSION['accommodationduration']);
+
   extract($form_state['values']);
 
   $_SESSION['castleschool_course'] = $course;
@@ -198,10 +202,6 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
   return $form;
 }
 
-function castleschool_choose_course_form_validate($form, &$form_state) {
-
-}
-
 function castleschool_choose_course_form_submit($form, &$form_state) {
 
   $form_state['redirect'] = 'search-for-accommodation';
@@ -258,6 +258,10 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
 
 function castleschool_search_for_accommodation_form_validate($form, &$form_state) {
 
+  if (!empty($form_state['values']['age']) && $form_state['values']['age'] > 150) {
+    form_set_error('title', 'Seriously?');
+  }
+
   if (!empty($form_state['values']['age']) && $form_state['values']['age'] < 16) {
     form_set_error('title', 'You must be at least 16 years old when you start your course');
   }
@@ -292,27 +296,18 @@ function castleschool_choose_accommodation_form($form, &$form_state) {
 
 function castleschool_accommodation_selection_table() {
 
-  $accommodationduration = $_SESSION['accommodationduration'];
+  $accommodationdetails = castleschool_accommodation_details();
 
   $header = array();
-  $rows = array(
-    array(
-      '<h5>Homestay (single room, half board) - <strong>£' . 145 * $accommodationduration . '</strong></h5>',
-      '<a class="btn btn-submit" href="/choose-your-accommodation/1">' .t('Select') .'</a>',
-    ),
-    array(
-      '<h5>Homestay (twin room, half board) - <strong>£' . 125 * $accommodationduration . '</strong></h5>',
-      '<a class="btn btn-submit" href="/choose-your-accommodation/2">' .t('Select') .'</a>',
-    ),
-    array(
-      '<h5>Room only (self-catering) - <strong>£' . 125 * $accommodationduration . '</strong></h5>',
-      '<a class="btn btn-submit" href="/choose-your-accommodation/3">' .t('Select') .'</a>',
-    ),
-    array(
-      '<h5>Self-catering Twin room - <strong>£' . 105 * $accommodationduration . '</strong></h5>',
-      '<a class="btn btn-submit" href="/choose-your-accommodation/4">' .t('Select') .'</a>',
-    ),
-  );
+  $rows = array();
+
+  foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
+    $rows[] = array(
+      '<h5>' . $accommodationoption['label']
+        . ' - <strong>£' . $accommodationoption['priceperweek'] * $_SESSION['accommodationduration'] . '</strong></h5>',
+      '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
+    );
+  }
 
   return theme(
     'table',
@@ -334,13 +329,7 @@ function castleschool_airport_transfers_form($form, &$form_state) {
   $form['whichairport'] = array(
     '#type' => 'select',
     '#title' => t('Which airport will you arrive at?'),
-    '#options' => array(
-      0 => t('I do not require an airport transfer'),
-      1 => t('Gatwick'),
-      2 => t('Heathrow'),
-      3 => t('Stanstead'),
-      4 => t('Luton'),
-    ),
+    '#options' => castleschool_get_airport_transfer_options(),
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -351,12 +340,7 @@ function castleschool_airport_transfers_form($form, &$form_state) {
   $form['arrivaldeparture'] = array(
     '#type' => 'select',
     '#title' => t('Would you like just an Arrival transfer or Arrival and Departure?'),
-    '#options' => array(
-      0 => t('- Select -'),
-      1 => t('Arrival Transfer'),
-      2 => t('Departure Transfer'),
-      3 => t('Arrival & Departure Transfer'),
-    ),
+    '#options' => castleschool_get_airport_transfer_type_details(),
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -397,23 +381,14 @@ function castleschool_airport_transfers_form_validate($form, &$form_state) {
 
 function castleschool_airport_transfers_form_submit($form, &$form_state) {
 
+  $airporttransferdetails = castleschool_get_airport_transfer_details();
   if ($form_state['values']['whichairport']) {
-    switch ($form_state['values']['whichairport']) {
-      case 1:
-        $airporttransferquote = 80;
-        break;
-      case 2:
-        $airporttransferquote = 130;
-        break;
-      case 3:
-        $airporttransferquote = 160;
-        break;
-      case 4:
-        $airporttransferquote = 160;
-    }
+    $_SESSION['whichairport'] = $form_state['values']['whichairport'];
+    $airporttransferquote = $airporttransferdetails[$form_state['values']['whichairport']]['price'];
   }
 
   if ($form_state['values']['arrivaldeparture'] == 3) {
+    $_SESSION['arrivaldeparture'] = $form_state['values']['arrivaldeparture'];
     $airporttransferquote *= 2;
   }
 
@@ -449,22 +424,33 @@ function castleschool_finalquote_form($form, &$form_state) {
   $markup .= '</tbody>';
   $markup .= '</table>';
   $markup .= '</div>';
-  $markup .= '<div class="table-responsive">';
-  $markup .= '<table class="table table-bordered table-striped">';
-  $markup .= '<thead>';
-  $markup .= '<tr class="info">';
-  $markup .= '<th><p class="text-left"><strong>' . t('Accommodation') . '</strong></p></th>';
-  $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
-  $markup .= '</tr>';
-  $markup .= '</thead>';
-  $markup .= '<tbody>';
-  $markup .= '<tr>';
-  $markup .= '<td><p class="text-left">Homestay, Standard Single room, Bed & breakfast<br/>Aug 12, 2017 – Sep 9, 2017<br/>Duration: 4 weeks</p></td>';
-  $markup .= '<td class="price"><p>£620</p></td>';
-  $markup .= '</tr>';
-  $markup .= '</tbody>';
-  $markup .= '</table>';
-  $markup .= '</div>';
+
+  if ((isset($_SESSION['accommodationchoice']) && $_SESSION['accommodationchoice'])
+      && ((isset($_SESSION['accommodationstartdate']) && $_SESSION['accommodationstartdate']))
+      && ((isset($_SESSION['accommodationduration']) && $_SESSION['accommodationduration']))
+      && ((isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal']))
+      ) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th><p class="text-left"><strong>' . t('Accommodation') . '</strong></p></th>';
+    $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+    $markup .= '<tr>';
+    $markup .= '<td><p class="text-left">' . $_SESSION['accommodationchoice']
+        . '<br/>' . castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration'])
+        . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
+        . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
+    $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '</tr>';
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
+
   $markup .= '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
   $markup .= '<thead>';
@@ -475,12 +461,13 @@ function castleschool_finalquote_form($form, &$form_state) {
   $markup .= '</thead>';
   $markup .= '<tbody>';
   $markup .= '<tr>';
-  $markup .= '<td><p class="text-left">London Heathrow Airport - Arrival</p></td>';
-  $markup .= '<td class="price"><p>£135</p></td>';
+  $markup .= '<td><p class="text-left">' . castleschool_get_airport_transfer_type($_SESSION['whichairport']) . ' - Arrival</p></td>';
+  $markup .= '<td class="price"><p>£' . $_SESSION['airporttransferquote'] . '</p></td>';
   $markup .= '</tr>';
   $markup .= '</tbody>';
   $markup .= '</table>';
   $markup .= '</div>';
+
   $markup .= '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
   $markup .= '<thead>';

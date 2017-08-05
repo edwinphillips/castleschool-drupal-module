@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Returns registration fee value
+ * Returns registration fee value.
  *
  * @return int
  */
@@ -11,61 +11,82 @@ function castleschool_get_registration_fee() {
 }
 
 /**
- * Returns course name from passed course Id
- *
- * @param int $courseid Course Id
- * @return string
- */
-function castleschool_get_course_name($courseid) {
-
-  $courses = castleschool_get_course_names();
-
-  return $courses[$courseid];
-}
-
-/**
- * Returns an associative array of course ids and course names.
+ * Returns accommodation types and prices.
  *
  * @return array
  */
-function castleschool_get_course_names() {
+function castleschool_accommodation_details() {
 
-  $courses = array();
-  $coursedetails = castleschool_course_details();
-
-  foreach ($coursedetails as $courseid => $coursedetail) {
-    $courses[$courseid] = $coursedetail['name'];
-  }
-
-  return $courses;
+  return array(
+    1 => array(
+      'label' => t('Homestay (single room, half board)'),
+      'priceperweek' => 145,
+    ),
+    2 => array(
+      'label' => t('Homestay (twin room, half board)'),
+      'priceperweek' => 125,
+    ),
+    3 => array(
+      'label' => t('Room only (self-catering)'),
+      'priceperweek' => 125,
+    ),
+    4 => array(
+      'label' => t('Self-catering Twin room'),
+      'priceperweek' => 105,
+    ),
+  );
 }
 
 /**
- * Returns an associative array of weekly hours available values and labels
- * for passed course by id.
+ * Returns airport transfer locations and prices.
  *
  * @return array
  */
-function castleschool_get_hoursperweek($courseid, $weeksselected) {
+function castleschool_get_airport_transfer_details() {
 
-  $hoursperweek = array();
-  $coursedetails = castleschool_course_details($courseid);
+  return array(
+    0 => array(
+      'label' => t('I do not require an airport transfer'),
+      'price' => 0,
+    ),
+    1 => array(
+      'label' => t('London Gatwick Airport'),
+      'price' => 100,
+    ),
+    2 => array(
+      'label' => t('London Heathrow Airport'),
+      'price' => 100,
+    ),
+    3 => array(
+      'label' => t('London Stanstead Airport'),
+      'price' => 100,
+    ),
+    4 => array(
+      'label' => t('London Luton Airport'),
+      'price' => 100,
+    ),
+  );
+}
 
-  foreach ($coursedetails['pricetiers'] as $pricetiers => $coursedetail) {
-    if ($weeksselected >= $coursedetail['weeks']['from'] && $weeksselected <= $coursedetail['weeks']['to']) {
-      foreach ($coursedetail['hoursperweek-priceperweek'] as $hours => $price) {
-        $hoursperweek[$hours] = $hours . t(' hours per week');
-      }
-      break;
-    }
-  }
+/**
+ * Returns airport transfer type options.
+ *
+ * @return array
+ */
+function castleschool_get_airport_transfer_type_details() {
 
-  return $hoursperweek;
+  return array(
+    0 => t('- Select -'),
+    1 => t('Arrival Transfer'),
+    2 => t('Departure Transfer'),
+    3 => t('Arrival & Departure Transfer'),
+  );
 }
 
 /**
  * Returns an array of courses and pricing tiers.
  *
+ * @param int $courseid Optional specific course filter by Id
  * @return array
  */
 function castleschool_course_details($courseid=null) {
@@ -259,12 +280,91 @@ function castleschool_course_details($courseid=null) {
   }
 }
 
-function castleschool_get_airport_transfers() {
+/**
+ * Returns airport transfer options.
+ *
+ * @return array
+ */
+function castleschool_get_airport_transfer_options() {
 
-  $transfers = array();
+  $airporttransferoptions = array();
+  $airporttransferinfo = castleschool_get_airport_transfer_details();
 
-  return $transfers;
+  foreach ($airporttransferinfo as $airporttransferid => $airporttransferdetails) {
+    $airporttransferoptions[$airporttransferid] = $airporttransferdetails['label'];
+  }
+
+  return $airporttransferoptions;
 }
+
+/**
+ * Returns airport transfer name from passed airport transfer Id.
+ *
+ * @param int $airporttransferid Airport transfer Id
+ * @return string
+ */
+function castleschool_get_airport_transfer_type($airporttransferid) {
+
+  $airporttransferdetails = castleschool_get_airport_transfer_details();
+
+  return $airporttransferdetails[$airporttransferid]['label'];
+}
+
+/**
+ * Returns course name from passed course Id.
+ *
+ * @param int $courseid Course Id
+ * @return string
+ */
+function castleschool_get_course_name($courseid) {
+
+  $courses = castleschool_get_course_names();
+
+  return $courses[$courseid];
+}
+
+/**
+ * Returns an associative array of course ids and course names.
+ *
+ * @return array
+ */
+function castleschool_get_course_names() {
+
+  $courses = array();
+  $coursedetails = castleschool_course_details();
+
+  foreach ($coursedetails as $courseid => $coursedetail) {
+    $courses[$courseid] = $coursedetail['name'];
+  }
+
+  return $courses;
+}
+
+/**
+ * Returns an associative array of weekly hours available values and labels
+ * for passed course by id.
+ *
+ * @param int $courseid Course Id
+ * @param int $weeksselected Weeks selected
+ * @return array
+ */
+function castleschool_get_hoursperweek($courseid, $weeksselected) {
+
+  $hoursperweek = array();
+  $coursedetails = castleschool_course_details($courseid);
+
+  foreach ($coursedetails['pricetiers'] as $pricetiers => $coursedetail) {
+    if ($weeksselected >= $coursedetail['weeks']['from'] && $weeksselected <= $coursedetail['weeks']['to']) {
+      foreach ($coursedetail['hoursperweek-priceperweek'] as $hours => $price) {
+        $hoursperweek[$hours] = $hours . t(' hours per week');
+      }
+      break;
+    }
+  }
+
+  return $hoursperweek;
+}
+
 /**
  * Returns an associative array of the next 18 months as
  * timestamps and friendly name values.
@@ -343,6 +443,38 @@ function castleschool_get_mondays_in_month($timestamp) {
 }
 
 /**
+ * Returns date formatted string of overall start and end dates
+ *
+ * @param int $startdate Timestamp of start date
+ * @param int $weeks Number of weeks of course
+ * @return string
+ */
+function castleschool_get_overall_dates() {
+
+  if ((isset($_SESSION['accommodationstartdate']) && $_SESSION['accommodationstartdate'])
+      && (isset($_SESSION['accommodationduration']) && $_SESSION['accommodationduration'])) {
+    return castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration']);
+  } else if ((isset($_SESSION['castleschool_day']) && $_SESSION['castleschool_day'])
+      && (isset($_SESSION['castleschool_weeks']) && $_SESSION['castleschool_weeks'])) {
+    return castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']);
+  }
+}
+
+/**
+ * Returns date formatted string of accommodation start and end dates
+ *
+ * @param int $startdate Timestamp of start date
+ * @param int $weeks Number of weeks of course
+ * @return string
+ */
+function castleschool_get_accommodation_dates($startdate, $weeks) {
+
+  $durationindays = $weeks * 7;
+
+  return date('M j, Y', $startdate) . ' - ' . date('M j, Y', strtotime("+{$durationindays} day", $startdate));
+}
+
+/**
  * Returns date formatted string of course start and end dates
  *
  * @param int $startdate Timestamp of start date
@@ -369,9 +501,9 @@ function castleschool_quotesummary_content() {
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
   $markup = '<h4>Quote summary</h4>';
-  $markup .= '<h6>' . castleschool_get_course_name($_SESSION['castleschool_course']) . '<br/>';
-  $markup .= castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']) . '<br/>';
-  $markup .= $_SESSION['castleschool_hoursperweek'] . t(' hours per week') . '</h6>';
+  $markup .= '<h6>' . castleschool_get_course_name($_SESSION['castleschool_course']);
+  $markup .= '<br/>' . $_SESSION['castleschool_hoursperweek'] . t(' hours per week');
+  $markup .= '<br/>' . castleschool_get_overall_dates() . '</h6>';
 
   // Prices
   $markup .= '<div class="castleschool-quote-summary-price">';
@@ -414,28 +546,28 @@ function castleschool_quotesummary_content() {
   return $markup;
 }
 
+/**
+ *
+ * @param type $selection
+ */
 function castleschool_accommodation_selected($selection) {
 
-  switch ($selection) {
-    case 1:
-      $accommodationfee = 145;
-      break;
-    case 2:
-      $accommodationfee = 125;
-      break;
-    case 3:
-      $accommodationfee = 125;
-      break;
-    case 4:
-      $accommodationfee = 105;
-      break;
-  }
+  $accommodationdetails = castleschool_accommodation_details();
+  $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
 
+  $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
+  $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
   $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
 
   drupal_goto('airport-transfers');
 }
 
+/**
+ *
+ * @param type $course
+ * @param type $hoursperweek
+ * @param type $weeks
+ */
 function castleschool_get_quote($course, $hoursperweek, $weeks) {
 
   $markup  = '<span class="castle-quote-total">£' . castleschool_get_coursequote($course, $hoursperweek, $weeks) . '</span>';
@@ -445,6 +577,13 @@ function castleschool_get_quote($course, $hoursperweek, $weeks) {
   echo $markup;
 }
 
+/**
+ *
+ * @param type $course
+ * @param type $hoursperweek
+ * @param type $weeks
+ * @return type
+ */
 function castleschool_get_coursequote($course, $hoursperweek, $weeks) {
 
   $coursedetails = castleschool_course_details();
