@@ -530,7 +530,7 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>' . t('Course') . '</h6>';
   $markup .= '</div>';
   $markup .= '<div class="castleschool-quote-summary-price-ammount">';
-  $markup .= '<h6>£' . $coursequote . '</h6>';
+  $markup .= '<h6>£<span id="summary-course-quote">' . $coursequote . '</span></h6>';
   $markup .= '</div>';
   $markup .= '</div>';
 
@@ -539,7 +539,7 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>' . t('Accommodation') . '</h6>';
   $markup .= '</div>';
   $markup .= '<div class="castleschool-quote-summary-price-ammount">';
-  $markup .= '<h6>£' . $accommodationtotal . '</h6>';
+  $markup .= '<h6>£<span id="summary-accommodation-quote">' . $accommodationtotal . '</span<</h6>';
   $markup .= '</div>';
   $markup .= '</div>';
 
@@ -548,7 +548,7 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>' . t('Optional Extras') . '</h6>';
   $markup .= '</div>';
   $markup .= '<div class="castleschool-quote-summary-price-ammount">';
-  $markup .= '<h6>£' . $airporttransferquote . '</h6>';
+  $markup .= '<h6>£<span id="summary-extras-quote">' . $airporttransferquote . '</span></h6>';
   $markup .= '</div>';
   $markup .= '</div>';
 
@@ -558,7 +558,7 @@ function castleschool_quotesummary_content() {
   $markup .= '<h5>' . t('Total Price') . '</h5>';
   $markup .= '</div>';
   $markup .= '<div class="castleschool-quote-summary-totalprice-ammount">';
-  $markup .= '<h5>£' . $quotetotal . '</h5>';
+  $markup .= '<h5>£<span id="summary-quote-total">' . $quotetotal . '</span></h5>';
   $markup .= '</div>';
   $markup .= '</div>';
 
@@ -599,11 +599,44 @@ function castleschool_get_quote($course, $hoursperweek, $weeks) {
 
   $coursequote = castleschool_get_coursequote($course, $hoursperweek, $weeks) + castleschool_get_registration_fee();
 
-  //$markup  = '<span class="castle-quote-total">£' . $coursequote . '</span>';
-  //$markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
-  //$markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £600</span>';
+  echo $coursequote;
+}
 
-  echo '£' . $coursequote;
+function castleschool_get_extras_quote($airportid, $arrivaldeparture) {
+
+  if ($arrivaldeparture == 0) {
+    $_SESSION['whichairport'] = 0;
+    $_SESSION['arrivaldeparture'] = 0;
+    $_SESSION['airporttransferquote'] = 0;
+    echo '0';
+  } else {
+    $airportdetails = castleschool_get_airport_transfer_details();
+    $airporttransferprice = $airportdetails[$airportid]['price'];
+    if ($arrivaldeparture == 3) {
+      $airporttransferprice *= 2;
+    }
+    $_SESSION['whichairport'] = $airportid;
+    $_SESSION['arrivaldeparture'] = $arrivaldeparture;
+    $_SESSION['airporttransferquote'] = $airporttransferprice;
+    echo $airporttransferprice;
+  }
+}
+
+function castleschool_get_accommodation_quote($accommodationduration) {
+
+  $accommodationdetails = castleschool_accommodation_details();
+  $weeklyaccommodationprice = $accommodationdetails[$_SESSION['accommodationid']]['priceperweek'];
+  $accommodationtotal = $weeklyaccommodationprice * $accommodationduration;
+
+  $_SESSION['accommodationduration'] = $accommodationduration;
+  $_SESSION['accommodationtotal'] = $accommodationtotal;
+
+  echo $accommodationtotal;
+}
+
+function castleschool_get_summary_quote_total($coursequotetotal, $accommodationquotetotal, $optionalextrasquotetotal) {
+
+  echo $coursequotetotal + $accommodationquotetotal + $optionalextrasquotetotal;
 }
 
 /**

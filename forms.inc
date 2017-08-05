@@ -83,7 +83,7 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   );
 
   $quotemarkup = '<div class="castle-quote-wrapper">';
-  $quotemarkup .= '<span class="castle-quote-total">£</span>';
+  $quotemarkup .= '<span class="castle-quote-total">£<span id="teaser-quote-value"></span></span>';
   $quotemarkup .= '<span class="castle-quote-fees"><em>inc. registration fee</em></span>';
   $quotemarkup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £600</span>';
   $quotemarkup .= '</div>';
