@@ -303,11 +303,24 @@ function castleschool_get_airport_transfer_options() {
  * @param int $airporttransferid Airport transfer Id
  * @return string
  */
-function castleschool_get_airport_transfer_type($airporttransferid) {
+function castleschool_get_airport_transfer_location($airportid) {
 
   $airporttransferdetails = castleschool_get_airport_transfer_details();
 
-  return $airporttransferdetails[$airporttransferid]['label'];
+  return $airporttransferdetails[$airportid]['label'];
+}
+
+/**
+ * Returns airport transfer type name from passed airport transfer type Id.
+ *
+ * @param int $airporttransferid
+ * @return string
+ */
+function castleschool_get_airport_transfer_type($airporttransferid) {
+
+  $airporttransfertypedetails = castleschool_get_airport_transfer_type_details();
+
+  return $airporttransfertypedetails[$airporttransferid];
 }
 
 /**
@@ -453,7 +466,13 @@ function castleschool_get_overall_dates() {
 
   if ((isset($_SESSION['accommodationstartdate']) && $_SESSION['accommodationstartdate'])
       && (isset($_SESSION['accommodationduration']) && $_SESSION['accommodationduration'])) {
-    return castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration']);
+    if (isset($_SESSION['castleschool_weeks']) && $_SESSION['castleschool_weeks'] > $_SESSION['accommodationduration']) {
+      $durationindays = $_SESSION['castleschool_weeks'] * 7;
+      return date('M j, Y', $_SESSION['accommodationstartdate'])
+          . ' - ' . date('M j, Y', strtotime("+{$durationindays} day", $_SESSION['accommodationstartdate']));
+    } else {
+      return castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['castleschool_weeks']);
+    }
   } else if ((isset($_SESSION['castleschool_day']) && $_SESSION['castleschool_day'])
       && (isset($_SESSION['castleschool_weeks']) && $_SESSION['castleschool_weeks'])) {
     return castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']);
@@ -496,8 +515,8 @@ function castleschool_get_course_dates($startdate, $weeks) {
 function castleschool_quotesummary_content() {
 
   $coursequote = $_SESSION['castleschool_coursequote'];
-  $accommodationtotal = $_SESSION['accommodationtotal'];
-  $airporttransferquote = $_SESSION['airporttransferquote'];
+  $accommodationtotal = ($_SESSION['accommodationtotal']) ? $_SESSION['accommodationtotal'] : 0;
+  $airporttransferquote = ($_SESSION['airporttransferquote']) ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
   $markup = '<h4>Quote summary</h4>';

@@ -3,3 +3,7 @@
 #castleschool-choose-accommodation-form #no_accommodation_button {
     float: right;
 }
+
+#castleschool-choose-accommodation-form td {
+    vertical-align: middle;
+}
