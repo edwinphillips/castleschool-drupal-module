@@ -82,8 +82,14 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
     ),
   );
 
+  $quotemarkup = '<div class="castle-quote-wrapper">';
+  $quotemarkup .= '<span class="castle-quote-total">£</span>';
+  $quotemarkup .= '<span class="castle-quote-fees"><em>inc. registration fee</em></span>';
+  $quotemarkup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £600</span>';
+  $quotemarkup .= '</div>';
+
   $form['quote'] = array(
-    '#markup' => '<div class="castle-quote-wrapper"></div>',
+    '#markup' => $quotemarkup,
   );
 
   $form['submit_button'] = array(
@@ -142,12 +148,32 @@ function castleschool_day_callback($form, $form_state) {
 
 function castleschool_choose_course_form($form, &$form_state, $weeks) {
 
+  $courseselected = isset($form_state['values']['course']) ? $form_state['values']['course'] : 1;
+  $weeksselected = isset($form_state['values']['weeks']) ? $form_state['values']['weeks'] : 4;
+
   $form['course'] = array(
     '#type' => 'select',
     '#title' => t('I want to study'),
-    '#default_value' => $form->course,
     '#options' => castleschool_get_course_names(),
-    '#default_value' => 1,
+    '#default_value' => $courseselected,
+    '#ajax' => array(
+      'callback' => 'castleschool_hoursperweek_callback',
+      'wrapper' => 'castleschool_hoursperweek_wrapper',
+    ),
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
+  $form['hoursperweek'] = array(
+    '#type' => 'select',
+    '#title' => 'For',
+    '#prefix' => '<div id="castleschool_hoursperweek_wrapper">',
+    '#suffix' => '</div>',
+    '#options' => castleschool_get_hoursperweek($courseselected, $weeksselected),
+    '#default_value' => castleschool_get_hoursperweek($courseselected, $weeksselected)[0],
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -156,16 +182,16 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
   );
 
   $months = castleschool_get_months();
-  $selected = isset($form_state['values']['months']) ? $form_state['values']['months'] : key($months);
+  $selected = isset($form_state['values']['month']) ? $form_state['values']['month'] : key($months);
 
-  $form['months'] = array(
+  $form['month'] = array(
     '#type' => 'select',
     '#title' => t('From'),
     '#options' => $months,
     '#default_value' => $selected,
     '#ajax' => array(
-      'callback' => 'castleschool_quote_select_callback',
-      'wrapper' => 'castleschool_quote_day_wrapper',
+      'callback' => 'castleschool_day_callback',
+      'wrapper' => 'castleschool_day_wrapper',
     ),
     '#attributes' => array(
       'class' => array(
@@ -174,13 +200,13 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
     ),
   );
 
-  $form['firstday'] = array(
+  $form['day'] = array(
     '#type' => 'select',
-    '#title' => t(' '),
-    '#prefix' => '<div id="castleschool_quote_day_wrapper">',
+    '#title' => t('&nbsp;'),
+    '#prefix' => '<div id="castleschool_day_wrapper">',
     '#suffix' => '</div>',
     '#options' => castleschool_get_mondays_in_month($selected),
-    '#default_value' => isset($form_state['values']['firstday']) ? $form_state['values']['firstday'] : '',
+    '#default_value' => isset($form_state['values']['day']) ? $form_state['values']['day'] : '',
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -202,7 +228,7 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
 
   $form['submit_button'] = array(
     '#type' => 'submit',
-    '#value' => t('Start Quote'),
+    '#value' => t('Next'),
   );
 
   return $form;
@@ -254,7 +280,7 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
   );
 
   $form['no_accommodation_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/airport-transfers">I do not require accommodation</a>',
+    '#markup' => '<a class="btn btn-warning" href="/choose-your-accommodation/0">I do not require accommodation</a>',
   );
 
   $form['search_button'] = array(
@@ -299,7 +325,8 @@ function castleschool_choose_accommodation_form($form, &$form_state) {
   );
 
   $form['no_accommodation_button'] = array(
-    '#markup' => '<a id="no_accommodation_button" class="btn btn-warning" href="/airport-transfers">' . t('I don\'t require accommodation') . '</a>',
+    '#markup' => '<a id="no_accommodation_button" class="btn btn-warning" href="/choose-your-accommodation/0">'
+      . t('I don\'t require accommodation') . '</a>',
   );
 
   return $form;
@@ -363,7 +390,8 @@ function castleschool_airport_transfers_form($form, &$form_state) {
     ),
   );
 
-  $arrivaldeparturedefault = (isset($_SESSION['arrivaldeparture']) && $_SESSION['arrivaldeparture']) ? $_SESSION['arrivaldeparture'] : 0;
+  $arrivaldeparturedefault = (isset($_SESSION['arrivaldeparture']) && $_SESSION['arrivaldeparture'])
+      ? $_SESSION['arrivaldeparture'] : 0;
 
   $form['arrivaldeparture'] = array(
     '#type' => 'select',
@@ -385,10 +413,11 @@ function castleschool_airport_transfers_form($form, &$form_state) {
     ),
   );
 
-  // Note: Needs to be 2 options here - either choose accommodation or search for accommodation
+  $backurl = (isset($_SESSION['accommodationid']) && $_SESSION['accommodationid']) ?
+      '/choose-your-accommodation' : '/search-for-accommodation';
 
   $form['back_button'] = array(
-    '#markup' => '<a class="btn btn-warning" href="/search-for-accommodation">Back</a>'
+    '#markup' => '<a class="btn btn-warning" href="' . $backurl . '">Back</a>'
   );
 
   $form['submit_button'] = array(
@@ -420,7 +449,8 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
   }
 
   $_SESSION['whichairport'] = $form_state['values']['whichairport'];
-  $_SESSION['arrivaldeparture'] = $form_state['values']['arrivaldeparture'];
+  $_SESSION['arrivaldeparture'] = ($form_state['values']['whichairport'] == 0)
+      ? 0 : $form_state['values']['arrivaldeparture'];
   $_SESSION['airporttransferquote'] = $airporttransferquote;
 
   $form_state['redirect'] = 'your-quote';

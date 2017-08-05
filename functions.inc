@@ -514,7 +514,7 @@ function castleschool_get_course_dates($startdate, $weeks) {
  */
 function castleschool_quotesummary_content() {
 
-  $coursequote = $_SESSION['castleschool_coursequote'];
+  $coursequote = $_SESSION['castleschool_coursequote'] + castleschool_get_registration_fee();
   $accommodationtotal = ($_SESSION['accommodationtotal']) ? $_SESSION['accommodationtotal'] : 0;
   $airporttransferquote = ($_SESSION['airporttransferquote']) ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
@@ -571,13 +571,20 @@ function castleschool_quotesummary_content() {
  */
 function castleschool_accommodation_selected($selection) {
 
-  $accommodationdetails = castleschool_accommodation_details();
-  $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
-
-  $_SESSION['accommodationid'] = $selection;
-  $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
-  $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
-  $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
+  if ($selection) {
+    $accommodationdetails = castleschool_accommodation_details();
+    $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
+    $_SESSION['accommodationid'] = $selection;
+    $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
+    $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
+    $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
+  } else {
+    unset($_SESSION['accommodationid']);
+    unset($_SESSION['accommodationchoice']);
+    unset($_SESSION['accommodationstartdate']);
+    unset($_SESSION['accommodationtotal']);
+    unset($_SESSION['accommodationduration']);
+  }
 
   drupal_goto('airport-transfers');
 }
@@ -590,11 +597,13 @@ function castleschool_accommodation_selected($selection) {
  */
 function castleschool_get_quote($course, $hoursperweek, $weeks) {
 
-  $markup  = '<span class="castle-quote-total">£' . castleschool_get_coursequote($course, $hoursperweek, $weeks) . '</span>';
-  //$markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
-  //$markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from <span data-bind="text: value">£600</span></span>';
+  $coursequote = castleschool_get_coursequote($course, $hoursperweek, $weeks) + castleschool_get_registration_fee();
 
-  echo $markup;
+  //$markup  = '<span class="castle-quote-total">£' . $coursequote . '</span>';
+  //$markup .= '<span class="castle-quote-fees"><em>inc. booking fees</em></span>';
+  //$markup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £600</span>';
+
+  echo '£' . $coursequote;
 }
 
 /**

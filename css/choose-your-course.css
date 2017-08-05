@@ -1,6 +1,9 @@
 /* Choose your course */
 
-#castleschool-quote-block-form #edit-submit-button {
+#castleschool-choose-course-form #edit-submit-button {
     float: right;
     margin-bottom: 25px;
+}
+#castleschool-choose-course-form .ajax-progress-throbber {
+    display: none
 }
