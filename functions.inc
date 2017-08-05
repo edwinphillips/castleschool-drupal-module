@@ -51,19 +51,19 @@ function castleschool_get_airport_transfer_details() {
     ),
     1 => array(
       'label' => t('London Gatwick Airport'),
-      'price' => 100,
+      'price' => 80,
     ),
     2 => array(
       'label' => t('London Heathrow Airport'),
-      'price' => 100,
+      'price' => 130,
     ),
     3 => array(
       'label' => t('London Stanstead Airport'),
-      'price' => 100,
+      'price' => 160,
     ),
     4 => array(
       'label' => t('London Luton Airport'),
-      'price' => 100,
+      'price' => 160,
     ),
   );
 }
@@ -574,6 +574,7 @@ function castleschool_accommodation_selected($selection) {
   $accommodationdetails = castleschool_accommodation_details();
   $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
 
+  $_SESSION['accommodationid'] = $selection;
   $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
   $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
   $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;

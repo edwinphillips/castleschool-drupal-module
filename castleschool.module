@@ -216,7 +216,7 @@ function castleschool_block_view($delta='') {
       break;
     case 'castleschool_search_accomm' :
       $weeks = array();
-      for ($i = $_SESSION['castleschool_weeks']; $i >= 2; $i--) {
+      for ($i = $_SESSION['castleschool_weeks']; $i >= 1; $i--) {
         $weeks[$i] = $i . t(' weeks');
       }
       $block['content'] = array(

@@ -101,12 +101,15 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
 
 function castleschool_teaser_form_submit($form, &$form_state) {
 
+  unset($_SESSION['accommodationid']);
   unset($_SESSION['accommodationstartdate']);
   unset($_SESSION['accommodationtotal']);
   unset($_SESSION['accommodationduration']);
   unset($_SESSION['accommodationtotal']);
   unset($_SESSION['airporttransferquote']);
   unset($_SESSION['whichairport']);
+  unset($_SESSION['arrivaldeparture']);
+  unset($_SESSION['age']);
 
   extract($form_state['values']);
 
@@ -218,11 +221,14 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
     '#markup' => '<p>' . t('We need to know a little bit about you before we can find suitable accommodation.') . '</p>',
   );
 
+  $accommodationdurationdefault = (isset($_SESSION['accommodationduration']) && $_SESSION['accommodationduration'])
+      ? $_SESSION['accommodationduration'] : array_keys($weeks)[0];
+
   $form['accommodationduration'] = array(
     '#type' => 'select',
     '#title' => t('How long do you want to stay?'),
     '#options' => $weeks,
-    '#default_value' => array_keys($weeks)[0],
+    '#default_value' => $accommodationdurationdefault,
     '#required' => FALSE,
     '#attributes' => array(
       'class' => array(
@@ -231,12 +237,14 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
     ),
   );
 
+  $agedefault = (isset($_SESSION['age']) && $_SESSION['age']) ? $_SESSION['age'] : '';
+
   $form['age'] = array(
     '#type' => 'textfield',
     '#title' => t('Age when you start your course'),
     '#size' => 3,
     '#maxlength' => 3,
-    '#default_value' => $_SESSION['age'],
+    '#default_value' => $agedefault,
     '#required' => TRUE,
     '#element_validate' => array('element_validate_number'),
   );
@@ -304,11 +312,24 @@ function castleschool_accommodation_selection_table() {
   $accommodationdetails = castleschool_accommodation_details();
 
   foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
-    $rows[] = array(
+
+    $rows[$accommodationid] = array(
       '<p>' . $accommodationoption['label']
         . ' - <strong>£' . $accommodationoption['priceperweek'] * $_SESSION['accommodationduration'] . '</strong></p>',
       '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
     );
+  }
+
+  foreach ($rows as $key => $row) {
+    if (isset($_SESSION['accommodationid'])
+        && $_SESSION['accommodationid'] == $key) {
+      $rows[$key] = array(
+        'data' => $row,
+        'class' => array(
+          'info'
+        )
+      );
+    }
   }
 
   return theme(
@@ -328,10 +349,13 @@ function castleschool_airport_transfers_form($form, &$form_state) {
     '#markup' => '<p>' . t('Would you like taxi transport from the airport to your accommodation?') . '</p>',
   );
 
+  $whichairportdefault = (isset($_SESSION['whichairport']) && $_SESSION['whichairport']) ? $_SESSION['whichairport'] : 0;
+
   $form['whichairport'] = array(
     '#type' => 'select',
     '#title' => t('Which airport will you arrive at?'),
     '#options' => castleschool_get_airport_transfer_options(),
+    '#default_value' => $whichairportdefault,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -339,10 +363,13 @@ function castleschool_airport_transfers_form($form, &$form_state) {
     ),
   );
 
+  $arrivaldeparturedefault = (isset($_SESSION['arrivaldeparture']) && $_SESSION['arrivaldeparture']) ? $_SESSION['arrivaldeparture'] : 0;
+
   $form['arrivaldeparture'] = array(
     '#type' => 'select',
     '#title' => t('Would you like just an Arrival transfer or Arrival and Departure?'),
     '#options' => castleschool_get_airport_transfer_type_details(),
+    '#default_value' => $arrivaldeparturedefault,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -385,7 +412,6 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
 
   $airporttransferdetails = castleschool_get_airport_transfer_details();
   if ($form_state['values']['whichairport']) {
-    $_SESSION['whichairport'] = $form_state['values']['whichairport'];
     $airporttransferquote = $airporttransferdetails[$form_state['values']['whichairport']]['price'];
   }
 
@@ -393,6 +419,7 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
     $airporttransferquote *= 2;
   }
 
+  $_SESSION['whichairport'] = $form_state['values']['whichairport'];
   $_SESSION['arrivaldeparture'] = $form_state['values']['arrivaldeparture'];
   $_SESSION['airporttransferquote'] = $airporttransferquote;
 
