@@ -1,8 +1,14 @@
 <?php
 
-/* Teaser Form */
-
-function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
+/**
+ * Teaser quote form
+ *
+ * @param type $form
+ * @param type $form_state
+ * @param array $weeks
+ * @return array
+ */
+function castleschool_teaser_form($form, &$form_state, $weeks) {
 
   $courseselected = isset($form_state['values']['course']) ? $form_state['values']['course'] : 1;
   $weeksselected = isset($form_state['values']['weeks']) ? $form_state['values']['weeks'] : 4;
@@ -85,7 +91,7 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   $quotemarkup = '<div class="castle-quote-wrapper">';
   $quotemarkup .= '<span class="castle-quote-total">£<span id="teaser-quote-value"></span></span>';
   $quotemarkup .= '<span class="castle-quote-fees"><em>inc. registration fee</em></span>';
-  $quotemarkup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £600</span>';
+  $quotemarkup .= '<span class="castle-quote-accomm">+&nbsp;accommodation from £<span id="teaser-accommodation-value"></span></span>';
   $quotemarkup .= '</div>';
 
   $form['quote'] = array(
@@ -105,6 +111,12 @@ function castleschool_teaser_form($form, &$form_state, $weeks, $nodeid) {
   return $form;
 }
 
+/**
+ * Teaser for submit
+ *
+ * @param type $form
+ * @param array $form_state
+ */
 function castleschool_teaser_form_submit($form, &$form_state) {
 
   unset($_SESSION['accommodationid']);
@@ -129,6 +141,13 @@ function castleschool_teaser_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'search-for-accommodation';
 }
 
+/**
+ * Hours per week callback
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_hoursperweek_callback($form, $form_state) {
 
   $hoursperweek = castleschool_get_hoursperweek($form['course']['#default_value'], $form_state['values']['weeks']);
@@ -137,6 +156,13 @@ function castleschool_hoursperweek_callback($form, $form_state) {
   return $form['hoursperweek'];
 }
 
+/**
+ * Day callback
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_day_callback($form, $form_state) {
 
   $form['day']['#options'] = castleschool_get_mondays_in_month($form['month']['#default_value']);
@@ -144,17 +170,34 @@ function castleschool_day_callback($form, $form_state) {
   return $form['day'];
 }
 
-/* Choose Your Course Form */
-
+/**
+ * Choose your course form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param array $weeks
+ * @return string
+ */
 function castleschool_choose_course_form($form, &$form_state, $weeks) {
 
-  $courseselected = isset($form_state['values']['course']) ? $form_state['values']['course'] : 1;
-  $weeksselected = isset($form_state['values']['weeks']) ? $form_state['values']['weeks'] : 4;
+  $courseoptions = castleschool_get_course_names();
+
+  $defaultcourse = isset($_SESSION['castleschool_course']) ? $_SESSION['castleschool_course'] : 1;
+  $courseselected = isset($form_state['values']['course']) ? $form_state['values']['course'] : $defaultcourse;
+
+  $defaultstartdate = isset($_SESSION['castleschool_day']) ? $_SESSION['castleschool_day'] : castleschool_get_startdate()[0];
+  $startdateselected = isset($form_state['values']['startdate']) ? $form_state['values']['startdate'] : $defaultstartdate;
+
+  $defaultweeks = isset($_SESSION['castleschool_weeks']) ? $_SESSION['castleschool_weeks'] : 4;
+  $weeksselected = isset($form_state['values']['weeks']) ? $form_state['values']['weeks'] : $defaultweeks;
+
+  $defaulthoursperweek = isset($_SESSION['castleschool_hoursperweek']) ? $_SESSION['castleschool_hoursperweek'] : castleschool_get_hoursperweek($courseselected, $weeksselected)[0];
+  $hoursperweekselected = isset($form_state['values']['hoursperweek']) ? $form_state['values']['hoursperweek'] : $defaulthoursperweek;
 
   $form['course'] = array(
     '#type' => 'select',
-    '#title' => t('I want to study'),
-    '#options' => castleschool_get_course_names(),
+    '#title' => t('What do you want to study?'),
+    '#options' => $courseoptions,
     '#default_value' => $courseselected,
     '#ajax' => array(
       'callback' => 'castleschool_hoursperweek_callback',
@@ -167,46 +210,26 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
     ),
   );
 
+  $form['startdate'] = array(
+    '#type' => 'select',
+    '#title' => t('When do you want to start?'),
+    '#description' => t('Classes begin on a Monday unless it is a public holiday.'),
+    '#options' => castleschool_get_startdate(),
+    '#default_value' => $startdateselected,
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
   $form['hoursperweek'] = array(
     '#type' => 'select',
-    '#title' => 'For',
+    '#title' => t('How many hours per week will you study for?'),
     '#prefix' => '<div id="castleschool_hoursperweek_wrapper">',
     '#suffix' => '</div>',
     '#options' => castleschool_get_hoursperweek($courseselected, $weeksselected),
-    '#default_value' => castleschool_get_hoursperweek($courseselected, $weeksselected)[0],
-    '#attributes' => array(
-      'class' => array(
-        'without-styles'
-      ),
-    ),
-  );
-
-  $months = castleschool_get_months();
-  $selected = isset($form_state['values']['month']) ? $form_state['values']['month'] : key($months);
-
-  $form['month'] = array(
-    '#type' => 'select',
-    '#title' => t('From'),
-    '#options' => $months,
-    '#default_value' => $selected,
-    '#ajax' => array(
-      'callback' => 'castleschool_day_callback',
-      'wrapper' => 'castleschool_day_wrapper',
-    ),
-    '#attributes' => array(
-      'class' => array(
-        'without-styles'
-      ),
-    ),
-  );
-
-  $form['day'] = array(
-    '#type' => 'select',
-    '#title' => t('&nbsp;'),
-    '#prefix' => '<div id="castleschool_day_wrapper">',
-    '#suffix' => '</div>',
-    '#options' => castleschool_get_mondays_in_month($selected),
-    '#default_value' => isset($form_state['values']['day']) ? $form_state['values']['day'] : '',
+    '#default_value' => $hoursperweekselected,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -216,9 +239,9 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
 
   $form['weeks'] = array(
     '#type' => 'select',
-    '#title' => t('For'),
-    '#default_value' => isset($form->weeks) ? $form->weeks : 4,
+    '#title' => t('How long will you study for?'),
     '#options' => $weeks,
+    '#default_value' => $weeksselected,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -234,13 +257,32 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
   return $form;
 }
 
+/**
+ * Choose your course form submit
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_choose_course_form_submit($form, &$form_state) {
+
+  extract($form_state['values']);
+
+  $_SESSION['castleschool_course'] = $course;
+  $_SESSION['castleschool_hoursperweek'] = $hoursperweek;
+  $_SESSION['castleschool_day'] = $startdate;
+  $_SESSION['castleschool_weeks'] = $weeks;
+  $_SESSION['castleschool_coursequote'] = castleschool_get_coursequote($course, $hoursperweek, $weeks);
 
   $form_state['redirect'] = 'search-for-accommodation';
 }
 
-/* Search for Accommodation form */
-
+/**
+ * Search for Accommodation form
+ * @param array $form
+ * @param array $form_state
+ * @param array $weeks
+ * @return array
+ */
 function castleschool_search_for_accommodation_form($form, &$form_state, $weeks) {
 
   $form['intro'] = array(
@@ -293,6 +335,12 @@ function castleschool_search_for_accommodation_form($form, &$form_state, $weeks)
   return $form;
 }
 
+/**
+ * Search for accommodation form validation
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_search_for_accommodation_form_validate($form, &$form_state) {
 
   if (!empty($form_state['values']['age']) && $form_state['values']['age'] > 150) {
@@ -304,6 +352,12 @@ function castleschool_search_for_accommodation_form_validate($form, &$form_state
   }
 }
 
+/**
+ * Search for accommodation form submit
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_search_for_accommodation_form_submit($form, &$form_state) {
 
   $_SESSION['accommodationduration'] = $form_state['values']['accommodationduration'];
@@ -312,8 +366,13 @@ function castleschool_search_for_accommodation_form_submit($form, &$form_state) 
   $form_state['redirect'] = 'choose-your-accommodation';
 }
 
-/* Choose Accommodation Form */
-
+/**
+ * Choose Accommodation form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_choose_accommodation_form($form, &$form_state) {
 
   $form['table'] = array(
@@ -332,6 +391,11 @@ function castleschool_choose_accommodation_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Accommodation selection table
+ *
+ * @return type
+ */
 function castleschool_accommodation_selection_table() {
 
   $header = array();
@@ -339,7 +403,6 @@ function castleschool_accommodation_selection_table() {
   $accommodationdetails = castleschool_accommodation_details();
 
   foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
-
     $rows[$accommodationid] = array(
       '<p>' . $accommodationoption['label']
         . ' - <strong>£' . $accommodationoption['priceperweek'] * $_SESSION['accommodationduration'] . '</strong></p>',
@@ -348,8 +411,7 @@ function castleschool_accommodation_selection_table() {
   }
 
   foreach ($rows as $key => $row) {
-    if (isset($_SESSION['accommodationid'])
-        && $_SESSION['accommodationid'] == $key) {
+    if (isset($_SESSION['accommodationid']) && $_SESSION['accommodationid'] == $key) {
       $rows[$key] = array(
         'data' => $row,
         'class' => array(
@@ -368,8 +430,13 @@ function castleschool_accommodation_selection_table() {
   );
 }
 
-/* Airport Transfers Form */
-
+/**
+ * Airport Transfers Form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_airport_transfers_form($form, &$form_state) {
 
   $form['intro'] = array(
@@ -428,6 +495,12 @@ function castleschool_airport_transfers_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Airport Transfers Form validation
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_airport_transfers_form_validate($form, &$form_state) {
 
   if ($form_state['values']['whichairport'] != 0 &&
@@ -437,6 +510,12 @@ function castleschool_airport_transfers_form_validate($form, &$form_state) {
   }
 }
 
+/**
+ * Airport Transfers Form Submit
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_airport_transfers_form_submit($form, &$form_state) {
 
   $airporttransferdetails = castleschool_get_airport_transfer_details();
@@ -456,8 +535,13 @@ function castleschool_airport_transfers_form_submit($form, &$form_state) {
   $form_state['redirect'] = 'your-quote';
 }
 
-/* Final Quote Form */
-
+/**
+ * Final Quote Form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_finalquote_form($form, &$form_state) {
 
   $registrationfee = castleschool_get_registration_fee();
@@ -573,13 +657,24 @@ function castleschool_finalquote_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Final Quote Form submit
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_finalquote_form_submit($form, &$form_state) {
 
   $form_state['redirect'] = 'booking-form';
 }
 
-/* Booking Form */
-
+/**
+ * Booking form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
 function castleschool_bookingform_form($form, &$form_state) {
 
   $markup = '<p>';
@@ -675,7 +770,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['nextofkin'] = array(
     '#type' => 'textfield',
-    '#title' => 'Next of kin',
+    '#title' => t('Next of kin'),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
@@ -683,7 +778,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['nextofkintelephone'] = array(
     '#type' => 'textfield',
-    '#title' => 'Next of kin telephone',
+    '#title' => t('Next of kin telephone'),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
@@ -699,7 +794,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['married'] = array(
     '#type' => 'select',
-    '#title' => 'Are you married?',
+    '#title' => t('Are you married?'),
     '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
@@ -715,7 +810,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['smoke'] = array(
     '#type' => 'select',
-    '#title' => 'Do you smoke?',
+    '#title' => t('Do you smoke?'),
     '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
@@ -731,7 +826,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['medicalconditions'] = array(
     '#type' => 'select',
-    '#title' => 'Do you have any medical conditions?',
+    '#title' => t('Do you have any medical conditions?'),
     '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
@@ -747,7 +842,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['petallergies'] = array(
     '#type' => 'select',
-    '#title' => 'Are you allergic to any animals?',
+    '#title' => t('Are you allergic to any animals?'),
     '#required' => FALSE,
     '#options' => array(
       '' => t('- Select -'),
@@ -769,10 +864,22 @@ function castleschool_bookingform_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Booking form validation
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_bookingform_form_validate($form, &$form_state) {
 
 }
 
+/**
+ * Booking form submit
+ *
+ * @param array $form
+ * @param array $form_state
+ */
 function castleschool_bookingform_form_submit($form, &$form_state) {
 
   $formvals = $form_state['values'];
@@ -794,7 +901,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   }
   $body .= '</ul>';
 
-  simple_mail_send($from, $to, $subject, $body); // not on dev
+  // simple_mail_send($from, $to, $subject, $body); // don't enable yet
 
   $form_state['redirect'] = 'booking-confirmation';
 }

@@ -354,7 +354,7 @@ function castleschool_get_course_names() {
 }
 
 /**
- * Returns an associative array of weekly hours available values and labels
+ * Returns an associative array of weekly hours available values and labels.
  * for passed course by id.
  *
  * @param int $courseid Course Id
@@ -387,11 +387,11 @@ function castleschool_get_hoursperweek($courseid, $weeksselected) {
 function castleschool_get_months() {
 
   $months = array();
-  $startmonth = (int)date('n');
-
-  $monthdays = (int)date('t');
+  $startmonth = (int) date('n');
+  $monthdays = (int) date('t');
   $mondaysinthismonth = array();
-  for ($i = (int)date('j') + 1; $i <= $monthdays; $i++) {
+
+  for ($i = (int) date('j') + 1; $i <= $monthdays; $i++) {
     if ((date('w', mktime(0, 0, 0, $startmonth, $i))) == 1) {
       $mondaysinthismonth[] = 1;
     }
@@ -401,8 +401,8 @@ function castleschool_get_months() {
     $startmonth += 1;
   }
 
-  for ($x = $startmonth; $x < $startmonth + 18; $x++) {
-    $months[mktime(0, 0, 0, $x, 1)] = date('F Y', mktime(0, 0, 0, $x, 1));
+  for ($i = $startmonth; $i < $startmonth + 18; $i++) {
+    $months[mktime(0, 0, 0, $i, 1)] = date('F Y', mktime(0, 0, 0, $i, 1));
   }
 
   return $months;
@@ -415,42 +415,28 @@ function castleschool_get_months() {
  * @param int $timestamp
  * @return array
  */
-function castleschool_get_mondays_in_month($timestamp) {
+function castleschool_get_mondays_in_month($monthtimestamp) {
 
-  $now = time();
   $mondays = array();
 
-  $start = date('N', $timestamp);
-  $month = date('m', $timestamp);
-
-  $closest_monday = $timestamp - ($start - 1) * 60 * 60 * 24;
-
-  if ($month == date('m', $closest_monday)) {
-    if ($closest_monday > $now) {
-      $mondays[$closest_monday] = date( 'l jS', $closest_monday);
-    }
-  } else {
-    $closest_monday = $timestamp + (8 - $start) * 60 * 60 * 24;
-    if ($closest_monday > $now) {
-      $mondays[$closest_monday] = date('l jS', $closest_monday);
+  for ($i = 1; $i <= 7; $i++) {
+    $timestamp = mktime(0, 0, 0, date('n', $monthtimestamp), $i, date('Y', $monthtimestamp));
+    if (date('N', $timestamp) == 1) {
+      $firstmondaytimestamp = $timestamp;
+      break;
     }
   }
+  $mondaytimestamp = $firstmondaytimestamp;
+  $lastmonthdaytimestamp = mktime(0, 0, 0, date('n', $monthtimestamp),
+      date('t', $monthtimestamp), date('Y', $monthtimestamp));
 
-  for ($i = 1; $i < 6; $i++) {
-    $prev = $closest_monday - $i * 7 * 60 * 60 * 24;
-    $next = $closest_monday + $i * 7 * 60 * 60 * 24;
-    if ($month == date('m', $next)) {
-      if ($next > $now) {
-        $mondays[$next] = date('l jS', $next);
-      }
+  $now = time();
+  while ($mondaytimestamp < $lastmonthdaytimestamp) {
+    if ($mondaytimestamp > $now) {
+      $mondays[$mondaytimestamp] = date('l jS', $mondaytimestamp);
     }
-    if ($month == date('m', $prev)) {
-      if ($prev > $now) {
-        $mondays[$prev] = date('l jS', $prev);
-      }
-    }
+    $mondaytimestamp = strtotime('+1 week', $mondaytimestamp);
   }
-  ksort($mondays);
 
   return $mondays;
 }
@@ -520,11 +506,9 @@ function castleschool_quotesummary_content() {
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
   $markup = '<h4>Quote summary</h4>';
-  $markup .= '<h6>' . castleschool_get_course_name($_SESSION['castleschool_course']);
+  $markup .= '<h6><span id="summary-course-details">' . castleschool_get_course_name($_SESSION['castleschool_course']);
   $markup .= '<br/>' . $_SESSION['castleschool_hoursperweek'] . t(' hours per week');
-  $markup .= '<br/>' . castleschool_get_overall_dates() . '</h6>';
-
-  // Prices
+  $markup .= '<br/>' . castleschool_get_overall_dates() . '</span></h6>';
   $markup .= '<div class="castleschool-quote-summary-price">';
   $markup .= '<div class="castleschool-quote-summary-price-item">';
   $markup .= '<h6>' . t('Course') . '</h6>';
@@ -533,7 +517,6 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>£<span id="summary-course-quote">' . $coursequote . '</span></h6>';
   $markup .= '</div>';
   $markup .= '</div>';
-
   $markup .= '<div class="castleschool-quote-summary-price">';
   $markup .= '<div class="castleschool-quote-summary-price-item">';
   $markup .= '<h6>' . t('Accommodation') . '</h6>';
@@ -542,7 +525,6 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>£<span id="summary-accommodation-quote">' . $accommodationtotal . '</span<</h6>';
   $markup .= '</div>';
   $markup .= '</div>';
-
   $markup .= '<div class="castleschool-quote-summary-price">';
   $markup .= '<div class="castleschool-quote-summary-price-item">';
   $markup .= '<h6>' . t('Optional Extras') . '</h6>';
@@ -551,8 +533,6 @@ function castleschool_quotesummary_content() {
   $markup .= '<h6>£<span id="summary-extras-quote">' . $airporttransferquote . '</span></h6>';
   $markup .= '</div>';
   $markup .= '</div>';
-
-  // Total Price
   $markup .= '<div class="castleschool-quote-summary-totalprice">';
   $markup .= '<div class="castleschool-quote-summary-totalprice-item">';
   $markup .= '<h5>' . t('Total Price') . '</h5>';
@@ -566,8 +546,9 @@ function castleschool_quotesummary_content() {
 }
 
 /**
+ * Accommodation selected action
  *
- * @param type $selection
+ * @param int $selection
  */
 function castleschool_accommodation_selected($selection) {
 
@@ -590,18 +571,23 @@ function castleschool_accommodation_selected($selection) {
 }
 
 /**
+ * Echos course quote value
  *
- * @param type $course
- * @param type $hoursperweek
- * @param type $weeks
+ * @param int $course
+ * @param int $hoursperweek
+ * @param int $weeks
  */
-function castleschool_get_quote($course, $hoursperweek, $weeks) {
+function castleschool_get_course_quote($course, $hoursperweek, $weeks) {
 
-  $coursequote = castleschool_get_coursequote($course, $hoursperweek, $weeks) + castleschool_get_registration_fee();
-
-  echo $coursequote;
+  echo castleschool_get_coursequote($course, $hoursperweek, $weeks) + castleschool_get_registration_fee();
 }
 
+/**
+ * Echos extra options quote value
+ *
+ * @param int $airportid
+ * @param int $arrivaldeparture
+ */
 function castleschool_get_extras_quote($airportid, $arrivaldeparture) {
 
   if ($arrivaldeparture == 0) {
@@ -622,6 +608,11 @@ function castleschool_get_extras_quote($airportid, $arrivaldeparture) {
   }
 }
 
+/**
+ * Echos accommodation quote total
+ *
+ * @param int $accommodationduration
+ */
 function castleschool_get_accommodation_quote($accommodationduration) {
 
   $accommodationdetails = castleschool_accommodation_details();
@@ -634,17 +625,43 @@ function castleschool_get_accommodation_quote($accommodationduration) {
   echo $accommodationtotal;
 }
 
+/**
+ * Echos accommodation from value
+ *
+ * @param int $duration
+ */
+function castleschool_get_accommodation_from_quote($duration) {
+
+  $lowestweeklyprice = '';
+  $accommodationdetails = castleschool_accommodation_details();
+  foreach ($accommodationdetails as $accommodationitem) {
+    if ($accommodationitem['priceperweek'] < $lowestweeklyprice || $lowestweeklyprice = '') {
+      $lowestweeklyprice = $accommodationitem['priceperweek'];
+    }
+  }
+
+  echo $accommodationitem['priceperweek'] * $duration;
+}
+
+/**
+ * Echos quote total value
+ *
+ * @param int $coursequotetotal
+ * @param int $accommodationquotetotal
+ * @param int $optionalextrasquotetotal
+ */
 function castleschool_get_summary_quote_total($coursequotetotal, $accommodationquotetotal, $optionalextrasquotetotal) {
 
   echo $coursequotetotal + $accommodationquotetotal + $optionalextrasquotetotal;
 }
 
 /**
+ * Returns course quote value
  *
- * @param type $course
- * @param type $hoursperweek
- * @param type $weeks
- * @return type
+ * @param int $course
+ * @param int $hoursperweek
+ * @param int $weeks
+ * @return int
  */
 function castleschool_get_coursequote($course, $hoursperweek, $weeks) {
 
@@ -659,4 +676,43 @@ function castleschool_get_coursequote($course, $hoursperweek, $weeks) {
   }
 
   return $priceperweek * $weeks;
+}
+
+/**
+ * Returns start date options
+ *
+ * @return array
+ */
+function castleschool_get_startdate() {
+
+  $nextmonday = strtotime('next monday');
+  $firstmonday = mktime(0, 0, 0, date('n', $nextmonday), date('j', $nextmonday), date('Y', $nextmonday));
+  $lastmonday = strtotime('+72 week', $firstmonday);
+
+  $startdates = array();
+  $startdate = $firstmonday;
+
+  while ($startdate < $lastmonday) {
+    $startdates[$startdate] = date('F j, Y', $startdate);
+    $startdate = strtotime('+1 week', $startdate);
+  }
+
+  return $startdates;
+}
+
+/**
+ * Echos course summary details
+ *
+ * @param int $course
+ * @param int $hoursperweek
+ * @param int $startdate
+ * @param int $weeks
+ */
+function castleschool_get_course_summary_details($course, $hoursperweek, $startdate, $weeks) {
+
+  $_SESSION['castleschool_day'] = $startdate;
+  $_SESSION['castleschool_weeks'] = $weeks;
+
+  echo castleschool_get_course_name($course) . '<br/>' . $hoursperweek . t(' hours per week')
+      . '<br>' . castleschool_get_overall_dates();
 }

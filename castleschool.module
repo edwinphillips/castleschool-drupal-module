@@ -28,8 +28,8 @@ function castleschool_menu() {
     'access arguments' => array('access content'),
   );
 
-  $items['castleschool/quote/%/%/%'] = array(
-    'page callback' => 'castleschool_get_quote',
+  $items['castleschool/course-quote/%/%/%'] = array(
+    'page callback' => 'castleschool_get_course_quote',
     'type' => MENU_CALLBACK,
     'page arguments' => array(2, 3, 4),
     'access arguments' => array('access content'),
@@ -37,6 +37,13 @@ function castleschool_menu() {
 
   $items['castleschool/accommodation-quote/%'] = array(
     'page callback' => 'castleschool_get_accommodation_quote',
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+  );
+
+  $items['castleschool/accommodation-from-quote/%'] = array(
+    'page callback' => 'castleschool_get_accommodation_from_quote',
     'type' => MENU_CALLBACK,
     'page arguments' => array(2),
     'access arguments' => array('access content'),
@@ -53,6 +60,13 @@ function castleschool_menu() {
     'page callback' => 'castleschool_get_summary_quote_total',
     'type' => MENU_CALLBACK,
     'page arguments' => array(2, 3, 4),
+    'access arguments' => array('access content'),
+  );
+
+  $items['castleschool/course-summary-details/%/%/%/%'] = array(
+    'page callback' => 'castleschool_get_course_summary_details',
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2, 3, 4, 5),
     'access arguments' => array('access content'),
   );
 
