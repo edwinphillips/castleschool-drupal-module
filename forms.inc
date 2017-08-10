@@ -690,7 +690,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('First name'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['lastname'] = array(
@@ -698,7 +698,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Last name'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['dob'] = array(
@@ -706,7 +706,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Date of birth'),
     '#size' => 10,
     '#maxlength' => 10,
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#attributes' => array(
       'placeholder' => t('dd/mm/yyyy'),
     ),
@@ -720,7 +720,7 @@ function castleschool_bookingform_form($form, &$form_state) {
       t('Male') => t('Male'),
       t('Female') => t('Female'),
     ),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#attributes' => array(
       'class' => array(
         'without-styles'
@@ -733,7 +733,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Nationality'),
     '#size' => 20,
     '#maxlength' => 20,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['passport'] = array(
@@ -741,7 +741,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Passport Number'),
     '#size' => 30,
     '#maxlength' => 30,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['telephone'] = array(
@@ -749,7 +749,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Telephone'),
     '#size' => 30,
     '#maxlength' => 30,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['email'] = array(
@@ -757,7 +757,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Email'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['address'] = array(
@@ -765,7 +765,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Address'),
     '#size' => 500,
     '#maxlength' => 500,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['nextofkin'] = array(
@@ -773,7 +773,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Next of kin'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['nextofkintelephone'] = array(
@@ -781,7 +781,7 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Next of kin telephone'),
     '#size' => 40,
     '#maxlength' => 40,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['nextofkinaddress'] = array(
@@ -789,13 +789,13 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#title' => t('Next of kin address'),
     '#size' => 500,
     '#maxlength' => 500,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['married'] = array(
     '#type' => 'select',
     '#title' => t('Are you married?'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -811,7 +811,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['smoke'] = array(
     '#type' => 'select',
     '#title' => t('Do you smoke?'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -827,7 +827,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['medicalconditions'] = array(
     '#type' => 'select',
     '#title' => t('Do you have any medical conditions?'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -843,7 +843,7 @@ function castleschool_bookingform_form($form, &$form_state) {
   $form['petallergies'] = array(
     '#type' => 'select',
     '#title' => t('Are you allergic to any animals?'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#options' => array(
       '' => t('- Select -'),
       t('Yes') => t('Yes'),
@@ -854,6 +854,10 @@ function castleschool_bookingform_form($form, &$form_state) {
         'without-styles'
       ),
     ),
+  );
+
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/your-quote">' . t('Back') . '</a>',
   );
 
   $form['submit_button'] = array(
