@@ -2,24 +2,28 @@
   Drupal.behaviors.castleschool = {
     attach: function (context, settings) {
       $('select[name="course"]').once(function(){
-          $('select[name="course"]').on('change',function() {
-              updatechoosecoursequote();
-          });
+        $('select[name="course"]').on('change',function() {
+          updatechoosecoursequote();
+        });
       });
       $('select[name="startdate"]').once(function(){
-          $('select[name="startdate"]').on('change',function() {
-              updatechoosecoursequote();
+        $('select[name="startdate"]').on('change',function() {
+          $('#summary-accommodation-quote').load('castleschool/accommodation-quote/0', function() {
+            updatechoosecoursequote();
           });
+        });
       });
       $('select[name="hoursperweek"]').once(function(){
-          $('select[name="hoursperweek"]').on('change',function() {
-              updatechoosecoursequote();
-          });
+        $('select[name="hoursperweek"]').on('change',function() {
+          updatechoosecoursequote();
+        });
       });
       $('select[name="weeks"]').once(function(){
-          $('select[name="weeks"]').on('change',function() {
-              updatechoosecoursequote();
+        $('select[name="weeks"]').on('change',function() {
+          $('#summary-accommodation-quote').load('castleschool/accommodation-quote/0', function() {
+            updatechoosecoursequote();
           });
+        });
       });
       updatechoosecoursequote();
 

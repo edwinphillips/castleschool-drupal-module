@@ -615,8 +615,16 @@ function castleschool_get_extras_quote($airportid, $arrivaldeparture) {
  */
 function castleschool_get_accommodation_quote($accommodationduration) {
 
-  $accommodationdetails = castleschool_accommodation_details();
-  $weeklyaccommodationprice = $accommodationdetails[$_SESSION['accommodationid']]['priceperweek'];
+  if ($accommodationduration == 0) {
+    unset($_SESSION['accommodationid']);
+  }
+
+  if (isset($_SESSION['accommodationid'])) {
+    $accommodationdetails = castleschool_accommodation_details();
+    $weeklyaccommodationprice = $accommodationdetails[$_SESSION['accommodationid']]['priceperweek'];
+  } else {
+    $weeklyaccommodationprice = 0;
+  }
   $accommodationtotal = $weeklyaccommodationprice * $accommodationduration;
 
   $_SESSION['accommodationduration'] = $accommodationduration;
