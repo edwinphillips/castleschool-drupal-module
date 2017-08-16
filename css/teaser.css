@@ -1,8 +1,9 @@
 /* Teaser */
 
 #block-castleschool-castleschool-teaser {
-    margin-left: 5%;
-    margin-right: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
 }
 
 #block-castleschool-castleschool-teaser .ajax-progress-throbber {
