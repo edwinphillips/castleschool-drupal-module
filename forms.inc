@@ -644,13 +644,10 @@ function castleschool_finalquote_form($form, &$form_state) {
     '#markup' => '<a class="btn btn-warning" href="/airport-transfers">' . t('Back') . '</a>',
   );
 
-  $buttonmarkup = '<div id="castleschool_button_wrapper">';
-  $buttonmarkup .= '<a class="btn btn-warning" href="/quote-contact">' . t('Contact Us') . '</a>';
-  $buttonmarkup .= '<a class="btn btn-warning" href="/quote-email">' . t('Email Quote') . '</a>';
   $form['submit_button'] = array(
     '#type' => 'submit',
     '#value' => t('Book now'),
-    '#prefix' => $buttonmarkup,
+    '#prefix' => '<div id="castleschool_button_wrapper">',
     '#suffix' => '</div>',
   );
 
