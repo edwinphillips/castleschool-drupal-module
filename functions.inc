@@ -7,7 +7,7 @@
  */
 function castleschool_get_registration_fee() {
 
-  return 80;
+  return 60;
 }
 
 /**
