@@ -902,7 +902,101 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   }
   $body .= '</ul>';
 
-  // simple_mail_send($from, $to, $subject, $body); // don't enable yet
+  $registrationfee = castleschool_get_registration_fee();
+  $coursequote = (isset($_SESSION['castleschool_coursequote']) && $_SESSION['castleschool_coursequote'])
+      ? $_SESSION['castleschool_coursequote'] : 0;
+  $accommodationquote = (isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal'])
+      ? $_SESSION['accommodationtotal'] : 0;
+  $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
+      ? $_SESSION['airporttransferquote'] : 0;
+  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
+
+  $markup = '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Course') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">' . castleschool_get_course_name($_SESSION['castleschool_course'])
+      . ' - ' . $_SESSION['castleschool_hoursperweek'] . t(' hours per week') . '<br/>'
+      . castleschool_get_course_dates($_SESSION['castleschool_day'], $_SESSION['castleschool_weeks']) . '<br/>'
+      . t('Length') . ': ' . $_SESSION['castleschool_weeks'] . ' ' . t('weeks') . '</p></td>';
+  $markup .= '<td class="price"><p>£' . $_SESSION['castleschool_coursequote'] . '</p></td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td><p class="text-left">' . t('Registration Fee') . '</p></td>';
+  $markup .= '<td class="price"><p>£' . castleschool_get_registration_fee() . '</p></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  if ((isset($_SESSION['accommodationchoice']) && $_SESSION['accommodationchoice'])
+      && ((isset($_SESSION['accommodationstartdate']) && $_SESSION['accommodationstartdate']))
+      && ((isset($_SESSION['accommodationduration']) && $_SESSION['accommodationduration']))
+      && ((isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal']))
+      ) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th><p class="text-left"><strong>' . t('Accommodation') . '</strong></p></th>';
+    $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+    $markup .= '<tr>';
+    $markup .= '<td><p class="text-left">' . $_SESSION['accommodationchoice']
+        . '<br/>' . castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration'])
+        . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
+        . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
+    $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '</tr>';
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
+
+  if ((isset($_SESSION['whichairport']) && $_SESSION['whichairport'])
+      && ((isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote']))
+      ) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th><p class="text-left"><strong>' . t('Optional Extras') . '</strong></p></th>';
+    $markup .= '<th class="price"><p><strong>' . t('Price') . '</strong></p></th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+    $markup .= '<tr>';
+    $markup .= '<td><p class="text-left">' . castleschool_get_airport_transfer_location($_SESSION['whichairport'])
+        . ' - ' . castleschool_get_airport_transfer_type($_SESSION['arrivaldeparture']) . '</p></td>';
+    $markup .= '<td class="price"><p>£' . $_SESSION['airporttransferquote'] . '</p></td>';
+    $markup .= '</tr>';
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th><p class="text-left"><strong>' . t('Total Price') . '</strong></p></th>';
+  $markup .= '<th class="price"><p><strong>£' . $quotetotal . '</strong></p></th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $body .= $markup;
+
+  simple_mail_send($from, $to, $subject, $body);
 
   $form_state['redirect'] = 'booking-confirmation';
 }
