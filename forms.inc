@@ -398,6 +398,8 @@ function castleschool_choose_accommodation_form($form, &$form_state) {
  */
 function castleschool_accommodation_selection_table() {
 
+  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
+
   $header = array();
   $rows = array();
   $accommodationdetails = castleschool_accommodation_details();
@@ -405,7 +407,7 @@ function castleschool_accommodation_selection_table() {
   foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
     $rows[$accommodationid] = array(
       '<p>' . $accommodationoption['label']
-        . ' - <strong>£' . $accommodationoption['priceperweek'] * $_SESSION['accommodationduration'] . '</strong></p>',
+        . ' - <strong>£' . (($accommodationoption['priceperweek'] * $_SESSION['accommodationduration']) + $accommodationfindingfee) . '</strong></p>',
       '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
     );
   }
@@ -421,13 +423,19 @@ function castleschool_accommodation_selection_table() {
     }
   }
 
-  return theme(
+  $tablehtml = theme(
     'table',
     array(
       'header' => $header,
       'rows' => $rows
     )
   );
+
+  $feehtml = '<p class="accommodation-finding-fee">' .
+      t('Prices include a £@fee accommodation finding fee.', array('@fee' => $accommodationfindingfee))
+      . '</p>';
+
+  return $tablehtml . $feehtml;
 }
 
 /**
@@ -549,9 +557,10 @@ function castleschool_finalquote_form($form, &$form_state) {
       ? $_SESSION['castleschool_coursequote'] : 0;
   $accommodationquote = (isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal'])
       ? $_SESSION['accommodationtotal'] : 0;
+  $accommodationfindingfee = ($accommodationquote) ? castleschool_get_accommodation_finding_fee() : 0;
   $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
       ? $_SESSION['airporttransferquote'] : 0;
-  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
+  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $accommodationfindingfee + $extrasquote;
 
   $markup = '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -597,6 +606,14 @@ function castleschool_finalquote_form($form, &$form_state) {
         . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
         . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
     $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= '<p class="text-left">' . t('Accommodation finding fee') . '</p>';
+    $markup .= '</td>';
+    $markup .= '<td class="price">';
+    $markup .= '<p>£' . $accommodationfindingfee . '</p>';
+    $markup .= '</td>';
     $markup .= '</tr>';
     $markup .= '</tbody>';
     $markup .= '</table>';
@@ -907,9 +924,10 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
       ? $_SESSION['castleschool_coursequote'] : 0;
   $accommodationquote = (isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal'])
       ? $_SESSION['accommodationtotal'] : 0;
+  $accommodationfindingfee = ($accommodationquote) ? castleschool_get_accommodation_finding_fee() : 0;
   $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
       ? $_SESSION['airporttransferquote'] : 0;
-  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
+  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $accommodationfindingfee + $extrasquote;
 
   $markup = '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -955,6 +973,14 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
         . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
         . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
     $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= '<p class="text-left">' . t('Accommodation finding fee') . '</p>';
+    $markup .= '</td>';
+    $markup .= '<td class="price">';
+    $markup .= '<p>£' . $accommodationfindingfee . '</p>';
+    $markup .= '</td>';
     $markup .= '</tr>';
     $markup .= '</tbody>';
     $markup .= '</table>';

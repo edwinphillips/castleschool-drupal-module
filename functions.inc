@@ -11,6 +11,16 @@ function castleschool_get_registration_fee() {
 }
 
 /**
+ * Returns accommodation finding fee value.
+ *
+ * @return int
+ */
+function castleschool_get_accommodation_finding_fee() {
+
+  return 50;
+}
+
+/**
  * Returns accommodation types and prices.
  *
  * @return array
@@ -501,7 +511,8 @@ function castleschool_get_course_dates($startdate, $weeks) {
 function castleschool_quotesummary_content() {
 
   $coursequote = $_SESSION['castleschool_coursequote'] + castleschool_get_registration_fee();
-  $accommodationtotal = ($_SESSION['accommodationtotal']) ? $_SESSION['accommodationtotal'] : 0;
+  $accommodationtotal = ($_SESSION['accommodationtotal']) ?
+      $_SESSION['accommodationtotal'] + castleschool_get_accommodation_finding_fee() : 0;
   $airporttransferquote = ($_SESSION['airporttransferquote']) ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
@@ -640,6 +651,8 @@ function castleschool_get_accommodation_quote($accommodationduration) {
  */
 function castleschool_get_accommodation_from_quote($duration) {
 
+  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
+
   $lowestweeklyprice = '';
   $accommodationdetails = castleschool_accommodation_details();
   foreach ($accommodationdetails as $accommodationitem) {
@@ -648,7 +661,7 @@ function castleschool_get_accommodation_from_quote($duration) {
     }
   }
 
-  echo $accommodationitem['priceperweek'] * $duration;
+  echo ($accommodationitem['priceperweek'] * $duration) + $accommodationfindingfee;
 }
 
 /**

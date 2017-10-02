@@ -7,3 +7,8 @@
 #castleschool-choose-accommodation-form td {
     vertical-align: middle;
 }
+
+#castleschool-choose-accommodation-form .accommodation-finding-fee {
+    text-align: center;
+    font-style: italic;
+}
