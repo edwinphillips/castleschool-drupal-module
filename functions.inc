@@ -30,19 +30,155 @@ function castleschool_accommodation_details() {
   return array(
     1 => array(
       'label' => t('Homestay (single room, half board)'),
-      'priceperweek' => 145,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 145,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 165
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 145
+        )
+      )
     ),
     2 => array(
       'label' => t('Homestay (twin room, half board)'),
-      'priceperweek' => 125,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 125,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 145
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 125
+        )
+      )
     ),
     3 => array(
       'label' => t('Room only (self-catering)'),
-      'priceperweek' => 125,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 125,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 145
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 125
+        )
+      )
     ),
     4 => array(
       'label' => t('Self-catering Twin room'),
-      'priceperweek' => 105,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 105,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 125
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 105
+        )
+      )
     ),
   );
 }
