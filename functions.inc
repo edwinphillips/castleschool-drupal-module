@@ -136,9 +136,9 @@ function castleschool_course_details($courseid=null) {
           ),
           'hoursperweek-priceperweek' => array(
             15 => 110,
-            21 => 150,
-            24 => 145,
-            30 => 140
+            21 => 155,
+            24 => 175,
+            30 => 210
           ),
         ),
         4 => array (
@@ -148,14 +148,26 @@ function castleschool_course_details($courseid=null) {
           ),
           'hoursperweek-priceperweek' => array(
             15 => 105,
-            21 => 145,
-            24 => 165,
-            30 => 200
+            21 => 150,
+            24 => 170,
+            30 => 205
           ),
         ),
         5 => array (
           'weeks' => array(
             'from' => 36,
+            'to' => 47,
+          ),
+          'hoursperweek-priceperweek' => array(
+            15 => 100,
+            21 => 145,
+            24 => 165,
+            30 => 200
+          ),
+        ),
+        6 => array (
+          'weeks' => array(
+            'from' => 48,
             'to' => 52,
           ),
           'hoursperweek-priceperweek' => array(
