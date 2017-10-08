@@ -2,6 +2,7 @@
 
 module_load_include('inc', 'castleschool', 'functions');
 module_load_include('inc', 'castleschool', 'forms');
+module_load_include('inc', 'castleschool', 'newfunctions');
 
 /**
  * Implements hook_permission().

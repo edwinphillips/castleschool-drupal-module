@@ -405,11 +405,7 @@ function castleschool_accommodation_selection_table() {
   $accommodationdetails = castleschool_accommodation_details();
 
   foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
-    $rows[$accommodationid] = array(
-      '<p>' . $accommodationoption['label']
-        . ' - <strong>£' . (($accommodationoption['priceperweek'] * $_SESSION['accommodationduration']) + $accommodationfindingfee) . '</strong></p>',
-      '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
-    );
+    $rows[$accommodationid] = castleschool_calculate_accommodation_quote($accommodationid, $accommodationoption, $accommodationfindingfee);
   }
 
   foreach ($rows as $key => $row) {
