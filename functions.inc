@@ -706,6 +706,7 @@ function castleschool_accommodation_selected($selection) {
 
   if ($selection) {
     $_SESSION['accommodationid'] = $selection;
+    $accommodationdetails = castleschool_accommodation_details();
     $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
     $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
     $_SESSION['accommodationtotal'] = castleschool_calculate_accommodation_quote($selection);

@@ -560,7 +560,7 @@ function castleschool_finalquote_form($form, &$form_state) {
   $accommodationfindingfee = ($accommodationquote) ? castleschool_get_accommodation_finding_fee() : 0;
   $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
       ? $_SESSION['airporttransferquote'] : 0;
-  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $accommodationfindingfee + $extrasquote;
+  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
 
   $markup = '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -605,7 +605,7 @@ function castleschool_finalquote_form($form, &$form_state) {
         . '<br/>' . castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration'])
         . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
         . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
-    $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '<td class="price"><p>£' . ($accommodationquote - $accommodationfindingfee) . '</p></td>';
     $markup .= '</tr>';
     $markup .= '<tr>';
     $markup .= '<td>';
@@ -927,7 +927,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $accommodationfindingfee = ($accommodationquote) ? castleschool_get_accommodation_finding_fee() : 0;
   $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
       ? $_SESSION['airporttransferquote'] : 0;
-  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $accommodationfindingfee + $extrasquote;
+  $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
 
   $markup = '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -972,7 +972,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
         . '<br/>' . castleschool_get_accommodation_dates($_SESSION['accommodationstartdate'], $_SESSION['accommodationduration'])
         . '<br/>' . t('Duration') . ': ' . $_SESSION['accommodationduration'] . ' ' . t('weeks')
         . '<br/>' . t('Your accommodation starts on the date shown above. Please let us know if you plan to arrive on a different day.') . '</p></td>';
-    $markup .= '<td class="price"><p>£' . $_SESSION['accommodationtotal'] . '</p></td>';
+    $markup .= '<td class="price"><p>£' . ($accommodationquote - $accommodationfindingfee) . '</p></td>';
     $markup .= '</tr>';
     $markup .= '<tr>';
     $markup .= '<td>';
