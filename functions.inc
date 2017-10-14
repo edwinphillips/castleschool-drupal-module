@@ -30,19 +30,155 @@ function castleschool_accommodation_details() {
   return array(
     1 => array(
       'label' => t('Homestay (single room, half board)'),
-      'priceperweek' => 145,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 145,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 165
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 145
+        )
+      )
     ),
     2 => array(
       'label' => t('Homestay (twin room, half board)'),
-      'priceperweek' => 125,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 125,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 145
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 125
+        )
+      )
     ),
     3 => array(
       'label' => t('Room only (self-catering)'),
-      'priceperweek' => 125,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 125,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 145
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 125
+        )
+      )
     ),
     4 => array(
       'label' => t('Self-catering Twin room'),
-      'priceperweek' => 105,
+      'periods' => array(
+        1 => array(
+          'start' => array(
+            'month' => 1,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 6,
+            'day' => 30
+          ),
+          'priceperweek' => 105,
+        ),
+        2 => array(
+          'start' => array(
+            'month' => 7,
+            'day' => 1
+          ),
+          'end' => array(
+            'month' => 8,
+            'day' => 28
+          ),
+          'priceperweek' => 125
+        ),
+        3 => array(
+          'start' => array(
+            'month' => 8,
+            'day' => 29
+          ),
+          'end' => array(
+            'month' => 12,
+            'day' => 31
+          ),
+          'priceperweek' => 105
+        )
+      )
     ),
   );
 }
@@ -517,7 +653,7 @@ function castleschool_quotesummary_content() {
 
   $coursequote = $_SESSION['castleschool_coursequote'] + castleschool_get_registration_fee();
   $accommodationtotal = ($_SESSION['accommodationtotal']) ?
-      $_SESSION['accommodationtotal'] + castleschool_get_accommodation_finding_fee() : 0;
+      $_SESSION['accommodationtotal'] : 0;
   $airporttransferquote = ($_SESSION['airporttransferquote']) ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
@@ -569,12 +705,11 @@ function castleschool_quotesummary_content() {
 function castleschool_accommodation_selected($selection) {
 
   if ($selection) {
-    $accommodationdetails = castleschool_accommodation_details();
-    $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
     $_SESSION['accommodationid'] = $selection;
+    $accommodationdetails = castleschool_accommodation_details();
     $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
     $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
-    $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
+    $_SESSION['accommodationtotal'] = castleschool_calculate_accommodation_quote($selection);
   } else {
     unset($_SESSION['accommodationid']);
     unset($_SESSION['accommodationchoice']);
@@ -654,19 +789,19 @@ function castleschool_get_accommodation_quote($accommodationduration) {
  *
  * @param int $duration
  */
-function castleschool_get_accommodation_from_quote($duration) {
-
-  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
+function castleschool_get_accommodation_from_quote($duration, $timestamp) {
 
   $lowestweeklyprice = '';
   $accommodationdetails = castleschool_accommodation_details();
-  foreach ($accommodationdetails as $accommodationitem) {
-    if ($accommodationitem['priceperweek'] < $lowestweeklyprice || $lowestweeklyprice = '') {
-      $lowestweeklyprice = $accommodationitem['priceperweek'];
+
+  foreach ($accommodationdetails as $accommodationid => $accommodationitem) {
+    $accommodationquote = castleschool_calculate_accommodation_quote($accommodationid, $timestamp, $duration);
+    if (($accommodationquote < $lowestweeklyprice) || ($lowestweeklyprice == '')) {
+      $lowestweeklyprice = $accommodationquote;
     }
   }
 
-  echo ($accommodationitem['priceperweek'] * $duration) + $accommodationfindingfee;
+  echo $lowestweeklyprice;
 }
 
 /**
@@ -741,4 +876,59 @@ function castleschool_get_course_summary_details($course, $hoursperweek, $startd
 
   echo castleschool_get_course_name($course) . '<br/>' . $hoursperweek . t(' hours per week')
       . '<br>' . castleschool_get_overall_dates();
+}
+
+/**
+ * Return accommodation option total amount from passed Id
+ *
+ * @param int $accommodationid Accommodation type Id
+ * @param int $coursestartdate Unix timestamp of course start date
+ * @param int $duration Number of weeks accommodation required
+ * @return int
+ */
+function castleschool_calculate_accommodation_quote($accommodationid, $coursestartdate=null, $duration=null) {
+
+  $accommodationoptiontotal = 0;
+  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
+  $accommodationprices = castleschool_accommodation_details();
+
+  if (is_null($coursestartdate)) {
+    $coursestartdate = $_SESSION['castleschool_day'];
+  }
+
+  if (is_null($duration)) {
+    $duration = $_SESSION['accommodationduration'];
+  }
+
+  $accommodationstartdate = $coursestartdate - 2 * 24 * 60 * 60; // 2 days prior
+  $weekstarttimestamp = $accommodationstartdate;
+  $accommodationoptionperiods = $accommodationprices[$accommodationid]['periods'];
+
+  for ($i = 1; $i <= $duration; $i++) {
+
+    foreach ($accommodationoptionperiods as $accommodationoptionperiodid => $accommodationoptionperiod) {
+
+      $periodstartyear = date('Y', $weekstarttimestamp);
+      $periodstartmonth = $accommodationoptionperiod['start']['month'];
+      $periodstartday = $accommodationoptionperiod['start']['day'];
+      $periodstart = strtotime("{$periodstartyear}-{$periodstartmonth}-{$periodstartday}");
+
+      $periodendyear = date('Y', strtotime('+1 Week', $weekstarttimestamp));
+      if ($periodendyear > $periodstartyear) {
+        $periodendyear = $periodstartyear;
+      }
+      $periodendmonth = $accommodationoptionperiod['end']['month'];
+      $periodendday = $accommodationoptionperiod['end']['day'];
+      $periodend = strtotime("{$periodendyear}-{$periodendmonth}-{$periodendday}");
+
+      if (($weekstarttimestamp >= $periodstart) && ($weekstarttimestamp <= $periodend)) {
+        $accommodationoptiontotal += $accommodationoptionperiod['priceperweek'];
+      }
+    }
+    $weekstarttimestamp += 7 * 24 * 60 * 60; // Add 7 days to the timestamp
+  }
+
+  $accommodationoptiontotal += $accommodationfindingfee;
+
+  return $accommodationoptiontotal;
 }
