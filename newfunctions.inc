@@ -9,70 +9,42 @@
  */
 function castleschool_calculate_accommodation_quote($accommodationid, $accommodationoption, $accommodationfindingfee) {
 
+  $accommodationoptiontotal = 0;
   $accommodationprices = castleschool_accommodation_details();
 
-  /*
-  echo '<pre>';
-  echo $accommodationstartdate;
-  echo '</pre>';
-  echo '<pre>';
-  print_r($accommodationprices);
-  echo '</pre>';
-  die;
-   * 
-   */
-  
   $coursestartdate = $_SESSION['castleschool_day'];
-  $accommodationstartdate = $coursestartdate - 48 * 60 * 60; // 48 hours prior (Accommdation starts on a Saturday, courses on a Monday)
-  $accommodationoptionperiods = $accommodationprices[$accommodationid]['periods'];
-  $accommodationoptiontotal = 0;
+  $accommodationstartdate = $coursestartdate - 2 * 24 * 60 * 60; // 2 days prior
   $weekstarttimestamp = $accommodationstartdate;
+  $accommodationoptionperiods = $accommodationprices[$accommodationid]['periods'];
 
-  for ($i = 2; $i <= $SESSION['accommodationduration']; $i++) {
+  for ($i = 1; $i <= $_SESSION['accommodationduration']; $i++) {
+
     foreach ($accommodationoptionperiods as $accommodationoptionperiodid => $accommodationoptionperiod) {
 
-      $weekstartmonth = date('n', $weekstarttimestamp);
-      $weekstartday = date('j', $weekstarttimestamp);
+      $periodstartyear = date('Y', $weekstarttimestamp);
+      $periodstartmonth = $accommodationoptionperiod['start']['month'];
+      $periodstartday = $accommodationoptionperiod['start']['day'];
+      $periodstart = strtotime("{$periodstartyear}-{$periodstartmonth}-{$periodstartday}");
 
-      echo '<pre>';
-      echo $weekstartmonth;
-      echo '</pre>';
-      echo '<pre>';
-      echo $weekstartday;
-      echo '</pre>';
-      die;
-
-      // is the month  between ['start']['month'] and ['end']['month']
-      if ($weekstartmonth > $accommodationoptionperiod['start']['month']
-          && $weekstartmonth < $accommodationoptionperiod['end']['month']) {
-
-        $accommodationoptiontotal += $accommodationoptionperiod['priceperweek'];
-
-      // or is the month one of the values ['start']['month'] or ['end']['month']
-      } else if ($weekstartmonth == $accommodationoptionperiod['start']['month']
-          || $weekstartmonth == $accommodationoptionperiod['end']['month']) {
-
-        // Week start month is the same as the start month
-        if ($weekstartmonth == $accommodationoptionperiod['start']['month']) {
-          
-          // Check the previous month period
-          $accommodationoptiontotal += 50;
-          
-        // Week start month is the same as the start month
-        } else if ($weekstartmonth == $accommodationoptionperiod['end']['month']) {
-          
-          // Check the next month period
-          $accommodationoptiontotal += 100;
-        }
+      $periodendyear = date('Y', strtotime('+1 Week', $weekstarttimestamp));
+      if ($periodendyear > $periodstartyear) {
+        $periodendyear = $periodstartyear;
       }
+      $periodendmonth = $accommodationoptionperiod['end']['month'];
+      $periodendday = $accommodationoptionperiod['end']['day'];
+      $periodend = strtotime("{$periodendyear}-{$periodendmonth}-{$periodendday}");
 
-      $weekstarttimestamp += 7 * 24 * 60 * 60; // Add 7 days to the timestamp
+      if (($weekstarttimestamp >= $periodstart) && ($weekstarttimestamp <= $periodend)) {
+        $accommodationoptiontotal += $accommodationoptionperiod['priceperweek'];
+      }
     }
+    $weekstarttimestamp += 7 * 24 * 60 * 60; // Add 7 days to the timestamp
   }
+
+  $accommodationoptiontotal += $accommodationfindingfee;
 
   return array(
     '<p>' . $accommodationoption['label'] . ' - <strong>£' . $accommodationoptiontotal . '</strong></p>',
     '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
   );
-  
 }
