@@ -653,7 +653,7 @@ function castleschool_quotesummary_content() {
 
   $coursequote = $_SESSION['castleschool_coursequote'] + castleschool_get_registration_fee();
   $accommodationtotal = ($_SESSION['accommodationtotal']) ?
-      $_SESSION['accommodationtotal'] + castleschool_get_accommodation_finding_fee() : 0;
+      $_SESSION['accommodationtotal'] : 0;
   $airporttransferquote = ($_SESSION['airporttransferquote']) ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $coursequote + $accommodationtotal + $airporttransferquote;
 
@@ -705,12 +705,10 @@ function castleschool_quotesummary_content() {
 function castleschool_accommodation_selected($selection) {
 
   if ($selection) {
-    $accommodationdetails = castleschool_accommodation_details();
-    $accommodationfee = $accommodationdetails[$selection]['priceperweek'];
     $_SESSION['accommodationid'] = $selection;
     $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
     $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
-    $_SESSION['accommodationtotal'] = $_SESSION['accommodationduration'] * $accommodationfee;
+    $_SESSION['accommodationtotal'] = castleschool_calculate_accommodation_quote($selection);
   } else {
     unset($_SESSION['accommodationid']);
     unset($_SESSION['accommodationchoice']);

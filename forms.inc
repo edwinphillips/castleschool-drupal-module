@@ -405,7 +405,11 @@ function castleschool_accommodation_selection_table() {
   $accommodationdetails = castleschool_accommodation_details();
 
   foreach ($accommodationdetails as $accommodationid => $accommodationoption) {
-    $rows[$accommodationid] = castleschool_calculate_accommodation_quote($accommodationid, $accommodationoption, $accommodationfindingfee);
+    $rows[$accommodationid] = array('<p>' . $accommodationoption['label']
+        . ' - <strong>£' . castleschool_calculate_accommodation_quote($accommodationid) . '</strong></p>',
+        '<a class="btn btn-submit" href="/choose-your-accommodation/'
+        . $accommodationid . '">' .t('Select') .'</a>'
+    );
   }
 
   foreach ($rows as $key => $row) {

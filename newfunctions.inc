@@ -2,14 +2,13 @@
 
 /**
  * 
- * @param type $accommodationoption
- * @param type $accommodationfindingfee
  * @param type $accommodationid
  * @return type
  */
-function castleschool_calculate_accommodation_quote($accommodationid, $accommodationoption, $accommodationfindingfee) {
+function castleschool_calculate_accommodation_quote($accommodationid) {
 
   $accommodationoptiontotal = 0;
+  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
   $accommodationprices = castleschool_accommodation_details();
 
   $coursestartdate = $_SESSION['castleschool_day'];
@@ -43,8 +42,5 @@ function castleschool_calculate_accommodation_quote($accommodationid, $accommoda
 
   $accommodationoptiontotal += $accommodationfindingfee;
 
-  return array(
-    '<p>' . $accommodationoption['label'] . ' - <strong>£' . $accommodationoptiontotal . '</strong></p>',
-    '<a class="btn btn-submit" href="/choose-your-accommodation/' . $accommodationid . '">' .t('Select') .'</a>',
-  );
+  return $accommodationoptiontotal;
 }
