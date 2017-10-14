@@ -265,10 +265,21 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
  */
 function castleschool_choose_course_form_submit($form, &$form_state) {
 
+  unset($_SESSION['accommodationid']);
+  unset($_SESSION['accommodationstartdate']);
+  unset($_SESSION['accommodationtotal']);
+  unset($_SESSION['accommodationduration']);
+  unset($_SESSION['accommodationtotal']);
+  unset($_SESSION['airporttransferquote']);
+  unset($_SESSION['whichairport']);
+  unset($_SESSION['arrivaldeparture']);
+  unset($_SESSION['age']);
+
   extract($form_state['values']);
 
   $_SESSION['castleschool_course'] = $course;
   $_SESSION['castleschool_hoursperweek'] = $hoursperweek;
+  $_SESSION['castleschool_month'] = $startdate;
   $_SESSION['castleschool_day'] = $startdate;
   $_SESSION['castleschool_weeks'] = $weeks;
   $_SESSION['castleschool_coursequote'] = castleschool_get_coursequote($course, $hoursperweek, $weeks);
