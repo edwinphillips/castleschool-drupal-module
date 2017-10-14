@@ -23,7 +23,8 @@
             var hoursperweek = $('select[name="hoursperweek"]').val();
             var weeks = $('select[name="weeks"]').val();
             $('#teaser-quote-value').load('castleschool/course-quote/' + course + '/' + hoursperweek + '/' + weeks, function() {
-              $('#teaser-accommodation-value').load('castleschool/accommodation-from-quote/' + weeks, function() {
+              var day = $('select[name="day"]').val();
+              $('#teaser-accommodation-value').load('castleschool/accommodation-from-quote/' + weeks + '/' + day, function() {
                 $.getScript("//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2");
               })
             });

@@ -789,19 +789,19 @@ function castleschool_get_accommodation_quote($accommodationduration) {
  *
  * @param int $duration
  */
-function castleschool_get_accommodation_from_quote($duration) {
-
-  $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
+function castleschool_get_accommodation_from_quote($duration, $timestamp) {
 
   $lowestweeklyprice = '';
   $accommodationdetails = castleschool_accommodation_details();
-  foreach ($accommodationdetails as $accommodationitem) {
-    if ($accommodationitem['priceperweek'] < $lowestweeklyprice || $lowestweeklyprice = '') {
-      $lowestweeklyprice = $accommodationitem['priceperweek'];
+
+  foreach ($accommodationdetails as $accommodationid => $accommodationitem) {
+    $accommodationquote = castleschool_calculate_accommodation_quote($accommodationid, $timestamp, $duration);
+    if (($accommodationquote < $lowestweeklyprice) || ($lowestweeklyprice == '')) {
+      $lowestweeklyprice = $accommodationquote;
     }
   }
 
-  echo ($accommodationitem['priceperweek'] * $duration) + $accommodationfindingfee;
+  echo $lowestweeklyprice;
 }
 
 /**

@@ -5,18 +5,25 @@
  * @param type $accommodationid
  * @return type
  */
-function castleschool_calculate_accommodation_quote($accommodationid) {
+function castleschool_calculate_accommodation_quote($accommodationid, $coursestartdate=null, $duration=null) {
 
   $accommodationoptiontotal = 0;
   $accommodationfindingfee = castleschool_get_accommodation_finding_fee();
   $accommodationprices = castleschool_accommodation_details();
 
-  $coursestartdate = $_SESSION['castleschool_day'];
+  if (is_null($coursestartdate)) {
+    $coursestartdate = $_SESSION['castleschool_day'];
+  }
+
+  if (is_null($duration)) {
+    $duration = $_SESSION['accommodationduration'];
+  }
+
   $accommodationstartdate = $coursestartdate - 2 * 24 * 60 * 60; // 2 days prior
   $weekstarttimestamp = $accommodationstartdate;
   $accommodationoptionperiods = $accommodationprices[$accommodationid]['periods'];
 
-  for ($i = 1; $i <= $_SESSION['accommodationduration']; $i++) {
+  for ($i = 1; $i <= $duration; $i++) {
 
     foreach ($accommodationoptionperiods as $accommodationoptionperiodid => $accommodationoptionperiod) {
 
