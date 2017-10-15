@@ -708,7 +708,7 @@ function castleschool_accommodation_selected($selection) {
     $_SESSION['accommodationid'] = $selection;
     $accommodationdetails = castleschool_accommodation_details();
     $_SESSION['accommodationchoice'] = $accommodationdetails[$selection]['label'];
-    $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-2 day", $_SESSION['castleschool_day'])));
+    $_SESSION['accommodationstartdate'] = strtotime(date('M j, Y', strtotime("-1 day", $_SESSION['castleschool_day'])));
     $_SESSION['accommodationtotal'] = castleschool_calculate_accommodation_quote($selection);
   } else {
     unset($_SESSION['accommodationid']);
@@ -900,7 +900,7 @@ function castleschool_calculate_accommodation_quote($accommodationid, $coursesta
     $duration = $_SESSION['accommodationduration'];
   }
 
-  $accommodationstartdate = $coursestartdate - 2 * 24 * 60 * 60; // 2 days prior
+  $accommodationstartdate = $coursestartdate - 24 * 60 * 60; // 1 day prior
   $weekstarttimestamp = $accommodationstartdate;
   $accommodationoptionperiods = $accommodationprices[$accommodationid]['periods'];
 
