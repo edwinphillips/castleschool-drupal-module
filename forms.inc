@@ -763,7 +763,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['passport'] = array(
     '#type' => 'textfield',
-    '#title' => t('Passport Number'),
+    '#title' => t('Passport number/EU Citizen ID number'),
     '#size' => 30,
     '#maxlength' => 30,
     '#required' => TRUE,
@@ -795,7 +795,7 @@ function castleschool_bookingform_form($form, &$form_state) {
 
   $form['nextofkin'] = array(
     '#type' => 'textfield',
-    '#title' => t('Next of kin'),
+    '#title' => t('Next of kin  (The name of the person we should contact in an emergency)'),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => TRUE,
@@ -815,22 +815,6 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#size' => 500,
     '#maxlength' => 500,
     '#required' => TRUE,
-  );
-
-  $form['married'] = array(
-    '#type' => 'select',
-    '#title' => t('Are you married?'),
-    '#required' => TRUE,
-    '#options' => array(
-      '' => t('- Select -'),
-      t('Yes') => t('Yes'),
-      t('No') => t('No'),
-    ),
-    '#attributes' => array(
-      'class' => array(
-        'without-styles'
-      ),
-    ),
   );
 
   $form['smoke'] = array(
