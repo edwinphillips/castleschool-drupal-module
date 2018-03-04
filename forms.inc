@@ -1019,5 +1019,40 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   simple_mail_send($from, $to, $subject, $body);
 
+  $bookingid = db_insert('castleschool_bookings')->fields(array(
+    'course_id' => $_SESSION['castleschool_course'],
+    'hours_per_week' => $_SESSION['castleschool_hoursperweek'],
+    'course_startdate' => $_SESSION['castleschool_day'],
+    'course_enddate' => $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']),
+    'course_length_weeks' => $_SESSION['castleschool_weeks'],
+    'registration_fee' => $registrationfee,
+    'accommodation_type_id' => $_SESSION['accommodationid'],
+    'accommodation_start_date' => $_SESSION['accommodationstartdate'],
+    'accommodation_end_date' => $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']),
+    'accommodation_duration_weeks' => $_SESSION['accommodationduration'],
+    'accommodation_finding_fee' => $accommodationfindingfee,
+    'airport_transfer_type_id' => $_SESSION['whichairport'],
+    'airport_transfer_singleorreturn' => $_SESSION['arrivaldeparture'],
+    'airport_transfer_fee' => $_SESSION['airporttransferquote'],
+    'total_booking_fee' => $quotetotal,
+    'firstname' => $formvals['firstname'],
+    'lastname' => $formvals['lastname'],
+    'date_of_birth' => $formvals['dob'],
+    'gender' => $formvals['gender'],
+    'nationality' => $formvals['nationality'],
+    'passport_or_idnumber' => $formvals['passport'],
+    'telephone' => $formvals['telephone'],
+    'email' => $formvals['email'],
+    'address' => $formvals['address'],
+    'nextofkin_name' => $formvals['nextofkin'],
+    'nextofkin_telephone' => $formvals['nextofkintelephone'],
+    'nextofkin_address' => $formvals['nextofkinaddress'],
+    'smokes' => $formvals['smoke'],
+    'medical_conditions' => $formvals['medicalconditions'],
+    'animal_allergies' => $formvals['petallergies'],
+    'created' => REQUEST_TIME,
+  ))
+  ->execute();
+
   $form_state['redirect'] = 'booking-confirmation';
 }
