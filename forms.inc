@@ -213,7 +213,7 @@ function castleschool_choose_course_form($form, &$form_state, $weeks) {
   $form['startdate'] = array(
     '#type' => 'select',
     '#title' => t('When do you want to start?'),
-    '#description' => t('Classes begin on a Monday unless it is a public holiday.'),
+    '#description' => t('Classes begin on a Monday.'),
     '#options' => castleschool_get_startdate(),
     '#default_value' => $startdateselected,
     '#attributes' => array(
