@@ -582,7 +582,7 @@ function castleschool_get_mondays_in_month($monthtimestamp) {
       date('t', $monthtimestamp), date('Y', $monthtimestamp));
 
   $now = time();
-  while ($mondaytimestamp < $lastmonthdaytimestamp) {
+  while ($mondaytimestamp <= $lastmonthdaytimestamp) {
     if ($mondaytimestamp > $now) {
       $mondays[$mondaytimestamp] = date('l jS', $mondaytimestamp);
     }
