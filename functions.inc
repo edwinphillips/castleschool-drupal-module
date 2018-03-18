@@ -932,3 +932,48 @@ function castleschool_calculate_accommodation_quote($accommodationid, $coursesta
 
   return $accommodationoptiontotal;
 }
+
+/**
+ * Returns HTML for Course Bookings Administration Page
+ *
+ * @return string
+ */
+function castleschool_show_course_bookings() {
+
+  $query = db_query('SELECT cb.booking_id, cc.course_name,  cb.firstname, cb.lastname, cb.created AS booking_created
+                    FROM {castleschool_bookings} cb
+                    JOIN {castleschool_courses} cc ON cc.course_id = cb.course_id
+                    ORDER BY booking_id DESC');
+  $bookings = $query->fetchAll();
+
+  $t = get_t();
+
+  $markup = '<table>';
+  $markup .= '<tr>';
+  $markup .= "<th>{$t('Booking ID')}</th>";
+  $markup .= "<th>{$t('Name')}</th>";
+  $markup .= "<th>{$t('Date')}</th>";
+  $markup .= "<th>{$t('Course')}</th>";
+  $markup .= "<th>{$t('Status')}</th>";
+  $markup .= "<th>{$t('Actions')}</th>";
+  $markup .= '</tr>';
+
+  foreach ($bookings as $booking) {
+    $markup .= '<tr>';
+    $markup .= "<td>{$booking->booking_id}</td>";
+    $markup .= "<td>{$booking->firstname} {$booking->lastname}</td>";
+    $markup .= '<td>' . date('jS M Y H:i', $booking->booking_created) . '</td>';
+    $markup .= "<td>{$booking->course_name}</td>";
+    $markup .= "<td>Pending</td>";
+    $markup .= "<td><a href='/admin/settings/castleschool/coursebookings/view/{$booking->booking_id}'>View</a></td>";
+    $markup .= '</tr>';
+  }
+
+  $markup .= '</table>';
+
+  $form['quotetable'] = array(
+    '#markup' => $markup,
+  );
+
+  return $form;
+}

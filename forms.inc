@@ -1051,8 +1051,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'medical_conditions' => $formvals['medicalconditions'],
     'animal_allergies' => $formvals['petallergies'],
     'created' => REQUEST_TIME,
-  ))
-  ->execute();
+  ))->execute();
 
   $form_state['redirect'] = 'booking-confirmation';
 }

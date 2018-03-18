@@ -76,7 +76,14 @@ function castleschool_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('castleschool_admin'),
     'access arguments' => array('Modify Castle School settings'),
-    'type' => MENU_NORMAL_ITEM
+  );
+
+  $items['admin/settings/castleschool/coursebookings'] = array(
+    'title' => 'Course Bookings',
+    'description' => 'Castle School Show Course Bookings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('castleschool_show_course_bookings'),
+    'access arguments' => array('Modify Castle School settings'),
   );
 
   $items['admin/settings/castleschool/choosecourse'] = array(
