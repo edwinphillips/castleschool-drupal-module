@@ -107,11 +107,33 @@ function castleschool_menu() {
  */
 function castleschool_admin() {
 
+  $form = array();
+
   $form['general'] = array(
     '#type' => 'fieldset',
-    '#title' => t('General Configuration'),
+    '#title' => t('Booking fees'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
+  );
+
+  $form['general']['registration_fee'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Registration fee'),
+    '#default_value' => variable_get('registration_fee', 60),
+    '#size' => 3,
+    '#maxlength' => 3,
+    '#description' => t("The registration fee added to a course booking."),
+    '#required' => TRUE,
+  );
+
+  $form['general']['accommodation_finding_fee'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Accommodation finding fee'),
+    '#default_value' => variable_get('accommodation_finding_fee', 50),
+    '#size' => 3,
+    '#maxlength' => 3,
+    '#description' => t("The accommodation finding fee added to a course booking if it includes accommodation."),
+    '#required' => TRUE,
   );
 
   return system_settings_form($form);

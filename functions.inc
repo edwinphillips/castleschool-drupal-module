@@ -7,7 +7,7 @@
  */
 function castleschool_get_registration_fee() {
 
-  return 60;
+  return variable_get('registration_fee', 60);
 }
 
 /**
@@ -17,7 +17,7 @@ function castleschool_get_registration_fee() {
  */
 function castleschool_get_accommodation_finding_fee() {
 
-  return 50;
+  return variable_get('accommodation_finding_fee', 50);
 }
 
 /**
