@@ -940,10 +940,13 @@ function castleschool_calculate_accommodation_quote($accommodationid, $coursesta
  */
 function castleschool_show_course_bookings() {
 
-  $query = db_query('SELECT cb.booking_id, cc.course_name,  cb.firstname, cb.lastname, cb.created AS booking_created
-                    FROM {castleschool_bookings} cb
-                    JOIN {castleschool_courses} cc ON cc.course_id = cb.course_id
-                    ORDER BY booking_id DESC');
+  $sql = "SELECT cb.booking_id, cc.course_name,  cb.firstname, cb.lastname, cb.created AS booking_created, cbs.status_label AS status
+            FROM {castleschool_bookings} cb
+            JOIN {castleschool_courses} cc ON cc.course_id = cb.course_id
+            JOIN castleschool_booking_status cbs ON cbs.status_id = cb.status_id
+        ORDER BY booking_id DESC";
+
+  $query = db_query($sql);
   $bookings = $query->fetchAll();
 
   $t = get_t();
@@ -964,14 +967,151 @@ function castleschool_show_course_bookings() {
     $markup .= "<td>{$booking->firstname} {$booking->lastname}</td>";
     $markup .= '<td>' . date('jS M Y H:i', $booking->booking_created) . '</td>';
     $markup .= "<td>{$booking->course_name}</td>";
-    $markup .= "<td>Pending</td>";
-    $markup .= "<td><a href='/admin/settings/castleschool/coursebookings/view/{$booking->booking_id}'>View</a></td>";
+    $markup .= "<td>{$booking->status}</td>";
+    $markup .= "<td><a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}'>View</a></td>";
     $markup .= '</tr>';
   }
 
   $markup .= '</table>';
 
-  $form['quotetable'] = array(
+  $form['bookingstable'] = array(
+    '#markup' => $markup,
+  );
+
+  return $form;
+}
+
+/**
+ * Returns FORM of booking detail values
+ * @todo: Return HTML for Course Bookings Administration Page
+ *
+ * @param type $bookingid
+ * @return string
+ */
+function castleschool_show_course_booking_details($bookingid) {
+
+  $sql = "SELECT cc.course_name, cb.hours_per_week, cb.course_startdate, cb.course_enddate, cb.course_length_weeks,
+                 cb.course_fee, cb.registration_fee, at.accommodation_type_name, cb.accommodation_start_date, cb.accommodation_end_date,
+                 cb.accommodation_duration_weeks, cb.accommodation_fee, cb.accommodation_finding_fee, att.airport_transfer_type_label,
+                 atsor.airport_transfer_singleorreturn_label, cb.airport_transfer_fee, cb.total_booking_fee
+            FROM castleschool_bookings cb
+            JOIN castleschool_courses cc ON cc.course_id = cb.course_id
+            JOIN castleschool_accommodation_types at ON at.accommodation_type_id = cb.accommodation_type_id
+            JOIN castleschool_airport_transfer_types att ON att.airport_transfer_type_id = cb.airport_transfer_type_id
+            JOIN castleschool_airport_transfer_singleorreturn atsor ON atsor.airport_transfer_singleorreturn = cb.airport_transfer_singleorreturn
+           WHERE cb.booking_id = :bookingid";
+  $query = db_query($sql, array('bookingid' => $bookingid));
+  $booking = $query->fetchAssoc();
+
+  $markup  = '';
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th width="65%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Course</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th class="price" style="text-align: right;" width="35%">';
+  $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p class="text-left">' . $booking['course_name'] . ' - ' . $booking['hours_per_week'] . ' hours per week<br>' . date('M j, Y', $booking['course_startdate']) . ' - ' . date('M j, Y', $booking['course_enddate']) . '<br>Length: ' . $booking['course_length_weeks'] . ' weeks</p>';
+  $markup .= '</td>';
+  $markup .= '<td class="price" style="text-align: right;">';
+  $markup .= '<p>&pound;' . $booking['course_fee'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p class="text-left">Registration Fee</p>';
+  $markup .= '</td>';
+  $markup .= '<td class="price" style="text-align: right;">';
+  $markup .= '<p>&pound;' . $booking['registration_fee'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th width="65%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Accommodation</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th class="price" style="text-align: right;" width="35%">';
+  $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p class="text-left">' . $booking['accommodation_type_name'] . '<br>' . date('M j, Y', $booking['accommodation_start_date']) . ' - ' . date('M j, Y', $booking['accommodation_end_date']) . '<br>Duration: ' . $booking['accommodation_duration_weeks'] . ' weeks</p>';
+  $markup .= '</td>';
+  $markup .= '<td class="price" style="text-align: right;">';
+  $markup .= '<p>&pound;' . $booking['accommodation_fee'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p class="text-left">Accommodation finding fee</p>';
+  $markup .= '</td>';
+  $markup .= '<td class="price" style="text-align: right;">';
+  $markup .= '<p>&pound;' . $booking['accommodation_finding_fee'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th width="65%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Optional Extras</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th class="price" style="text-align: right;" width="35%">';
+  $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p class="text-left">' . $booking['airport_transfer_type_label'] . ' - ' . $booking['airport_transfer_singleorreturn_label'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td class="price" style="text-align: right;">';
+  $markup .= '<p>&pound;' . $booking['airport_transfer_fee'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th width="65%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Total Price</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th class="price" style="text-align: right;" width="35%">';
+  $markup .= '<p style="margin-bottom: 0;"><strong>&pound;' . $booking['total_booking_fee'] . '</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
+  $form['bookingdetails'] = array(
     '#markup' => $markup,
   );
 

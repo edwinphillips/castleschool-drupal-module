@@ -9,13 +9,43 @@
  * Implements hook_install().
  */
 function castleschool_install() {
+
   $t = get_t();
 
-  $query = db_insert('castleschool_courses')
-    ->fields(array(
-      'course_id',
-      'course_name',
-    ));
+  // Populate castleschool_booking_status table.
+
+  $fields = array(
+    'status_id',
+    'status_label',
+  );
+
+  $query = db_insert('castleschool_booking_status')->fields($fields);
+
+  $values = array(
+    array(
+      'status_id' => 0,
+      'status_label' => $t('Pending'),
+    ),
+    array(
+      'status_id' => 1,
+      'status_label' => $t('Confirmed'),
+    ),
+  );
+
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+
+  $query->execute();
+
+  // Populate castleschool_courses table.
+
+  $fields = array(
+    'course_id',
+    'course_name',
+  );
+
+  $query = db_insert('castleschool_courses')->fields($fields);
 
   $values = array(
     array(
@@ -24,7 +54,7 @@ function castleschool_install() {
     ),
     array(
       'course_id' => 2,
-      'course_name' => $t('Cambridge Exam Prep'),
+      'course_name' => $t('Cambridge Exam Preparation'),
     ),
     array(
       'course_id' => 3,
@@ -39,6 +69,115 @@ function castleschool_install() {
   foreach ($values as $record) {
     $query->values($record);
   }
+
+  $query->execute();
+
+  // Populate castleschool_accommodation_types table.
+
+  $fields = array(
+    'accommodation_type_id',
+    'accommodation_type_name',
+  );
+
+  $query = db_insert('castleschool_accommodation_types')->fields($fields);
+
+  $values = array(
+    array(
+      'accommodation_type_id' => 1,
+      'accommodation_type_name' => 'Homestay (single room, half board)',
+    ),
+    array(
+      'accommodation_type_id' => 2,
+      'accommodation_type_name' => 'Homestay (twin room, half board)',
+    ),
+    array(
+      'accommodation_type_id' => 3,
+      'accommodation_type_name' => 'Room only (self-catering)',
+    ),
+    array(
+      'accommodation_type_id' => 4,
+      'accommodation_type_name' => 'Self-catering Twin room',
+    ),
+  );
+
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+
+  $query->execute();
+
+  // Populate castleschool_airport_transfer_types table.
+
+  $fields = array(
+    'airport_transfer_type_id',
+    'airport_transfer_type_label',
+    'airport_transfer_type_price'
+  );
+
+  $query = db_insert('castleschool_airport_transfer_types')->fields($fields);
+
+  $values = array(
+    array(
+      'airport_transfer_type_id' => 0,
+      'airport_transfer_type_label' => t('I do not require an airport transfer'),
+      'airport_transfer_type_price' => 0,
+    ),
+    array(
+      'airport_transfer_type_id' => 1,
+      'airport_transfer_type_label' => t('London Gatwick Airport'),
+      'airport_transfer_type_price' => 80,
+    ),
+    array(
+      'airport_transfer_type_id' => 2,
+      'airport_transfer_type_label' => t('London Heathrow Airport'),
+      'airport_transfer_type_price' => 130,
+    ),
+    array(
+      'airport_transfer_type_id' => 3,
+      'airport_transfer_type_label' => t('London Stanstead Airport'),
+      'airport_transfer_type_price' => 160,
+    ),
+    array(
+      'airport_transfer_type_id' => 4,
+      'airport_transfer_type_label' => t('London Luton Airport'),
+      'airport_transfer_type_price' => 160,
+    ),
+  );
+
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+
+  $query->execute();
+
+  // Populate castleschool_airport_transfer_singleorreturn table.
+
+  $fields = array(
+    'airport_transfer_singleorreturn',
+    'airport_transfer_singleorreturn_label',
+  );
+
+  $query = db_insert('castleschool_airport_transfer_singleorreturn')->fields($fields);
+
+  $values = array(
+    array(
+      'airport_transfer_singleorreturn' => 1,
+      'airport_transfer_singleorreturn_label' => t('Arrival Transfer'),
+    ),
+    array(
+      'airport_transfer_singleorreturn' => 2,
+      'airport_transfer_singleorreturn_label' => t('Departure Transfer'),
+    ),
+    array(
+      'airport_transfer_singleorreturn' => 3,
+      'airport_transfer_singleorreturn_label' => t('Arrival & Departure Transfer'),
+    ),
+  );
+
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+
   $query->execute();
 }
 
@@ -46,333 +185,416 @@ function castleschool_install() {
  * Implements hook_uninstall().
  */
 function castleschool_uninstall() {
-  drupal_uninstall_schema('castleschool');  
+  drupal_uninstall_schema('castleschool');
 }
 
 /**
  * Implements hook_schema().
  */
 function castleschool_schema() {
+
   $schema = array();
+
+  $schema['castleschool_booking_status'] = array(
+    'description' => 'Castle Schools Booking Statuses',
+    'fields' => array(
+      'status_id' => array(
+        'description' => 'Primary key: the booking status ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'status_label' => array(
+        'description' => 'The booking status label.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('status_id'),
+  );
+
   $schema['castleschool_courses'] = array(
-      'description' => 'Castle School Courses',
-      'fields' => array(
-        'course_id' => array(
-          'description' => 'Primary key: the course ID.',
-          'type' => 'serial',
-          'unsigned' => TRUE,
-          'not null' => TRUE,
-        ),
-        'course_name' => array(
-          'description' => 'The course name.',
-          'type' => 'varchar',
-          'length' => 255,
-          'not null' => TRUE,
-          'default' => '',
-        ),
+    'description' => 'Castle School Courses',
+    'fields' => array(
+      'course_id' => array(
+        'description' => 'Primary key: the course ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
-      'primary key' => array('course_id'),
-  );
-  /*
-  $schema['castleschool_course_pricetiers'] = array(
-      'description' => 'Castle School Course Price Tiers',
-      'fields' => array(
-        'pricetier_id' => array(
-          'description' => 'Primary key: the course price tier ID.',
-          'type' => 'serial',
-          'unsigned' => TRUE,
-          'not null' => TRUE,
-        ),
-        'course_id' => array(),
-        'weeks_from' => array(),
-        'weeks_to' => array(),
-        'hoursperweek' => array(),
-        'priceperweek' => array(),
+      'course_name' => array(
+        'description' => 'The course name.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
       ),
+    ),
+    'primary key' => array('course_id'),
   );
-   */
 
-  /*
-  $schema[''] = array();
-   */
+  $schema['castleschool_accommodation_types'] = array(
+    'description' => 'Castle School Accommodation Types',
+    'fields' => array(
+      'accommodation_type_id' => array(
+        'description' => 'Primary key: the accommodation type ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'accommodation_type_name' => array(
+        'description' => 'The accommodation type name.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('accommodation_type_id'),
+  );
 
-  /*
-  $schema[''] = array();
-   */
+  $schema['castleschool_airport_transfer_types'] = array(
+    'description' => 'Castle School Airport Transfer Types',
+    'fields' => array(
+      'airport_transfer_type_id' => array(
+        'description' => 'Primary key: the airport transfer type ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'airport_transfer_type_label' => array(
+        'description' => 'The airport transfer type label.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'airport_transfer_type_price' => array(
+        'description' => 'The airport transfer price.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+    ),
+    'primary key' => array('airport_transfer_type_id'),
+  );
+
+  $schema['castleschool_airport_transfer_singleorreturn'] = array(
+    'description' => '',
+    'fields' => array(
+      'airport_transfer_singleorreturn' => array(
+        'description' => 'Primary key: the airport transfer single/return ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'airport_transfer_singleorreturn_label' => array(
+        'description' => 'The airport transfer single/return label.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('airport_transfer_singleorreturn'),
+  );
 
   $schema['castleschool_bookings'] = array(
-      'description' => '',
-      'fields' => array(
-          'booking_id' => array(
-            'description' => 'Primary key: the booking ID.',
-            'type' => 'serial',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-          ),
-          'course_id' => array(
-            'description' => 'The ID of the course being booked.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'hours_per_week' => array(
-            'description' => 'The number of hours per week being booked.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'course_startdate' => array(
-            'description' => 'The Unix timestamp indicating the start date of the course booking.',
-            'type' => 'int',
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'course_enddate' => array(
-            'description' => 'The Unix timestamp indicating the end date of the course booking.',
-            'type' => 'int',
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'course_length_weeks' => array(
-            'description' => 'The length of the course booking in weeks.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'registration_fee' => array(
-            'description' => 'The registration fee.',
-            'type' => 'numeric',
-            'precision' => 16,
-            'scale' => 2,
-            'not null' => TRUE,
-            'default' => 0.0,
-          ),
-          'accommodation_type_id' => array(
-            'description' => 'The accommodation type ID.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'accommodation_start_date' => array(
-            'description' => 'The Unix timestamp indicating when the accommodation starts.',
-            'type' => 'int',
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'accommodation_end_date' => array(
-            'description' => 'The Unix timestamp indicating when the accommodation ends.',
-            'type' => 'int',
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'accommodation_duration_weeks' => array(
-            'description' => 'The duration of the accommodation in weeks.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'accommodation_finding_fee' => array(
-            'description' => 'The accommodation finding fee.',
-            'type' => 'numeric',
-            'precision' => 16,
-            'scale' => 2,
-            'not null' => TRUE,
-            'default' => 0.0,
-          ),
-          'airport_transfer_type_id' => array(
-            'description' => 'The airport transfer type ID.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'airport_transfer_singleorreturn' => array(
-            'description' => 'Whether the airport transfer is a single or return transfer.',
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-          'airport_transfer_fee' => array(
-            'description' => 'The airport transfer fee.',
-            'type' => 'numeric',
-            'precision' => 16,
-            'scale' => 2,
-            'not null' => TRUE,
-            'default' => 0.0,
-          ),
-          'total_booking_fee' => array(
-            'description' => 'The total booking fee.',
-            'type' => 'numeric',
-            'precision' => 16,
-            'scale' => 2,
-            'not null' => TRUE,
-            'default' => 0.0,
-          ),
-          'firstname' => array(
-            'description' => 'The first name of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'lastname' => array(
-            'description' => 'The last name of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'date_of_birth' => array(
-            'description' => 'The date of birth of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 16,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'gender' => array(
-            'description' => 'The gender of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 16,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'nationality' => array(
-            'description' => 'The nationality of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'passport_or_idnumber' => array(
-            'description' => 'The passport or ID number of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 96,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'telephone' => array(
-            'description' => 'The phone number of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'email' => array(
-            'description' => 'The email address of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 96,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'address' => array(
-            'description' => 'The address of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'nextofkin_name' => array(
-            'description' => 'The name of the next of kin of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'nextofkin_telephone' => array(
-            'description' => 'The phone number of the next of kin of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'nextofkin_address' => array(
-            'description' => 'The address of the next of kin of the person booked onto the course.',
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'smokes' => array(
-            'description' => 'Whether the person booked onto the course smokes.',
-            'type' => 'varchar',
-            'length' => 16,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'medical_conditions' => array(
-            'description' => 'Whether the person booked onto the course has any medical conditions.',
-            'type' => 'varchar',
-            'length' => 16,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'animal_allergies' => array(
-            'description' => 'Whether the person booked onto the course has any animal allergies.',
-            'type' => 'varchar',
-            'length' => 16,
-            'not null' => TRUE,
-            'default' => '',
-          ),
-          'created' => array(
-            'description' => 'The Unix timestamp indicating the time the booking was made.',
-            'type' => 'int',
-            'not null' => TRUE,
-            'default' => 0,
-          ),
-       ),
-      'primary key' => array('booking_id'),
-      'foreign keys' => array(
-        'castleschool_courses' => array(
-          'table' => 'castleschool_courses',
-          'columns' => array('course_id' => 'course_id'),
-        ),
+    'description' => 'Castle School Course Bookings',
+    'fields' => array(
+      'booking_id' => array(
+        'description' => 'Primary key: the booking ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
+      'status_id' => array(
+        'description' => 'The booking status ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_id' => array(
+        'description' => 'The ID of the course being booked.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'hours_per_week' => array(
+        'description' => 'The number of hours per week being booked.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_startdate' => array(
+        'description' => 'The Unix timestamp indicating the start date of the course booking.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_enddate' => array(
+        'description' => 'The Unix timestamp indicating the end date of the course booking.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_length_weeks' => array(
+        'description' => 'The length of the course booking in weeks.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'course_fee' => array(
+        'description' => 'The course fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'registration_fee' => array(
+        'description' => 'The registration fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'accommodation_type_id' => array(
+        'description' => 'The accommodation type ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'accommodation_start_date' => array(
+        'description' => 'The Unix timestamp indicating when the accommodation starts.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'accommodation_end_date' => array(
+        'description' => 'The Unix timestamp indicating when the accommodation ends.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'accommodation_duration_weeks' => array(
+        'description' => 'The duration of the accommodation in weeks.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'accommodation_fee' => array(
+        'description' => 'The accommodation fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'accommodation_finding_fee' => array(
+        'description' => 'The accommodation finding fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'airport_transfer_type_id' => array(
+        'description' => 'The airport transfer type ID.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'airport_transfer_singleorreturn' => array(
+        'description' => 'Whether the airport transfer is a single or return transfer.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'airport_transfer_fee' => array(
+        'description' => 'The airport transfer fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'total_booking_fee' => array(
+        'description' => 'The total booking fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
+      'firstname' => array(
+        'description' => 'The first name of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'lastname' => array(
+        'description' => 'The last name of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'date_of_birth' => array(
+        'description' => 'The date of birth of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gender' => array(
+        'description' => 'The gender of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'nationality' => array(
+        'description' => 'The nationality of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'passport_or_idnumber' => array(
+        'description' => 'The passport or ID number of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 96,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'telephone' => array(
+        'description' => 'The phone number of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'email' => array(
+        'description' => 'The email address of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 96,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'address' => array(
+        'description' => 'The address of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'nextofkin_name' => array(
+        'description' => 'The name of the next of kin of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'nextofkin_telephone' => array(
+        'description' => 'The phone number of the next of kin of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'nextofkin_address' => array(
+        'description' => 'The address of the next of kin of the person booked onto the course.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'smokes' => array(
+        'description' => 'Whether the person booked onto the course smokes.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'medical_conditions' => array(
+        'description' => 'Whether the person booked onto the course has any medical conditions.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'animal_allergies' => array(
+        'description' => 'Whether the person booked onto the course has any animal allergies.',
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp indicating the time the booking was made.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('booking_id'),
+    'foreign keys' => array(
+      'castleschool_booking_status' => array(
+        'table' => 'castleschool_booking_status',
+        'columns' => array('status_id' => 'status_id'),
+      ),
+      'castleschool_courses' => array(
+        'table' => 'castleschool_courses',
+        'columns' => array('course_id' => 'course_id'),
+      ),
+      'castleschool_accommodation_types' => array(
+        'table' => 'castleschool_accommodation_types',
+        'columns' => array('accommodation_type_id' => 'accommodation_type_id'),
+      ),
+      'castleschool_airport_transfer_types' => array(
+        'table' => 'castleschool_airport_transfer_types',
+        'columns' => array('airport_transfer_type_id' => 'airport_transfer_type_id'),
+      ),
+      'castleschool_airport_transfer_singleorreturn' => array(
+        'table' => 'castleschool_airport_transfer_singleorreturn',
+        'columns' => array('airport_transfer_singleorreturn' => 'airport_transfer_singleorreturn'),
+      ),
+    ),
   );
+
+  /*
+  $schema['castleschool_course_pricetiers'] = array(
+    'description' => 'Castle School Course Price Tiers',
+    'fields' => array(
+      'pricetier_id' => array(
+        'description' => 'Primary key: the course price tier ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'course_id' => array(),
+      'weeks_from' => array(),
+      'weeks_to' => array(),
+      'hoursperweek' => array(),
+      'priceperweek' => array(),
+    ),
+  );
+   */
 
   return $schema;
-}
-
-/**
- * Add database tables.
- */
-function castleschool_update_7000() {
-  drupal_install_schema('castleschool');
-
-  $t = get_t();
-
-  $query = db_insert('castleschool_courses')
-    ->fields(array(
-      'course_id',
-      'course_name',
-    ));
-
-  $values = array(
-    array(
-      'course_id' => 1,
-      'course_name' => $t('General English'),
-    ),
-    array(
-      'course_id' => 2,
-      'course_name' => $t('Cambridge Exam Prep'),
-    ),
-    array(
-      'course_id' => 3,
-      'course_name' => $t('IELTS'),
-    ),
-    array(
-      'course_id' => 4,
-      'course_name' => $t('One to one'),
-    ),
-  );
-
-  foreach ($values as $record) {
-    $query->values($record);
-  }
-  $query->execute();
 }

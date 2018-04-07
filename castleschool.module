@@ -99,6 +99,15 @@ function castleschool_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
+  $items['admin/settings/castleschool/coursebookings/%'] = array(
+    'title' => 'Course Booking',
+    'description' => 'Castle School Show Course Booking Information',
+    'page callback' => 'castleschool_show_course_booking_details',
+    'page arguments' => array(4),
+    'access arguments' => array('Modify Castle School settings'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 

@@ -920,6 +920,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $accommodationquote = (isset($_SESSION['accommodationtotal']) && $_SESSION['accommodationtotal'])
       ? $_SESSION['accommodationtotal'] : 0;
   $accommodationfindingfee = ($accommodationquote) ? castleschool_get_accommodation_finding_fee() : 0;
+  $accommodationfee = $accommodationquote - $accommodationfindingfee;
   $extrasquote = (isset($_SESSION['airporttransferquote']) && $_SESSION['airporttransferquote'])
       ? $_SESSION['airporttransferquote'] : 0;
   $quotetotal = $registrationfee + $coursequote + $accommodationquote + $extrasquote;
@@ -1025,11 +1026,13 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'course_startdate' => $_SESSION['castleschool_day'],
     'course_enddate' => $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']),
     'course_length_weeks' => $_SESSION['castleschool_weeks'],
+    'course_fee' => $coursequote,
     'registration_fee' => $registrationfee,
     'accommodation_type_id' => $_SESSION['accommodationid'],
     'accommodation_start_date' => $_SESSION['accommodationstartdate'],
     'accommodation_end_date' => $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']),
     'accommodation_duration_weeks' => $_SESSION['accommodationduration'],
+    'accommodation_fee' => $accommodationfee,
     'accommodation_finding_fee' => $accommodationfindingfee,
     'airport_transfer_type_id' => $_SESSION['whichairport'],
     'airport_transfer_singleorreturn' => $_SESSION['arrivaldeparture'],
