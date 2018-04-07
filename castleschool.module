@@ -72,28 +72,31 @@ function castleschool_menu() {
 
   $items['admin/settings/castleschool'] = array(
     'title' => 'Castle School',
-    'description' => 'Castle School module settings control',
+    'description' => 'Castle School module overview',
+    'page arguments' => array('castleschool_overview'),
+    'access arguments' => array('Modify Castle School settings'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/settings/castleschool/options'] = array(
+    'title' => 'Options',
+    'weight' => 0,
+    'description' => 'Castle School module options',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('castleschool_admin'),
     'access arguments' => array('Modify Castle School settings'),
+    'type' => MENU_NORMAL_ITEM,
   );
 
   $items['admin/settings/castleschool/coursebookings'] = array(
-    'title' => 'Course Bookings',
+    'title' => 'Bookings',
+    'weight' => 1,
     'description' => 'Castle School Show Course Bookings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('castleschool_show_course_bookings'),
     'access arguments' => array('Modify Castle School settings'),
-  );
-
-  $items['admin/settings/castleschool/choosecourse'] = array(
-    'title' => 'Choose Your Course Form',
-    'description' => 'Settings for Choose Your Course Form.',
-    'page callback' => '', // 'uc_store_reports',
-    'access arguments' => array('Modify Castle School settings'),
-    'weight' => 2,
-    'file' => '', // 'uc_store.admin.inc',
-    'position' => 'right',
+    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
