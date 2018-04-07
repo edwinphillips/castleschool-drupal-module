@@ -109,14 +109,14 @@ function castleschool_admin() {
 
   $form = array();
 
-  $form['general'] = array(
+  $form['booking_fees'] = array(
     '#type' => 'fieldset',
     '#title' => t('Booking fees'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
 
-  $form['general']['registration_fee'] = array(
+  $form['booking_fees']['registration_fee'] = array(
     '#type' => 'textfield',
     '#title' => t('Registration fee'),
     '#default_value' => variable_get('registration_fee', 60),
@@ -126,13 +126,32 @@ function castleschool_admin() {
     '#required' => TRUE,
   );
 
-  $form['general']['accommodation_finding_fee'] = array(
+  $form['booking_fees']['accommodation_finding_fee'] = array(
     '#type' => 'textfield',
     '#title' => t('Accommodation finding fee'),
     '#default_value' => variable_get('accommodation_finding_fee', 50),
     '#size' => 3,
     '#maxlength' => 3,
     '#description' => t("The accommodation finding fee added to a course booking if it includes accommodation."),
+    '#required' => TRUE,
+  );
+
+  $form['worldpay_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Worldpay options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['worldpay_options']['worldpay_mode'] = array(
+    '#type' => 'select',
+    '#title' => t('Worldpay mode'),
+    '#options' => array(
+      0 => t('Test'),
+      1 => t('Live'),
+    ),
+    '#default_value' => variable_get('worldpay_mode', 0),
+    '#description' => t('The Worldpay system used to process payments.'),
     '#required' => TRUE,
   );
 
