@@ -903,10 +903,12 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   extract($formvals);
 
   $from = 'no-reply@castle-school.co.uk';
-  $to = 'info@castle-school.co.uk';
+  $to = variable_get('booking_notifications', 'info@castle-school.co.uk');
   $subject = 'Castle School Course Booking';
-  $body = '<p>A course booking has been received from the Castle School website.</p>';
+
+  $body  = '<p>A course booking has been received from the Castle School website.</p>';
   $body .= '<p>The details submitted are as follows:</p>';
+
   $body .= '<ul>';
   foreach ($formvals as $key => $value) {
     $title = $form_state['complete form'][$key]['#title'];
@@ -1056,5 +1058,119 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'created' => REQUEST_TIME,
   ))->execute();
 
-  $form_state['redirect'] = 'booking-confirmation';
+  $_SESSION['booking_id'] = $bookingid;
+
+  $form_state['redirect'] = 'proceed-to-worldpay';
+}
+
+/**
+ * Proceed to Worldpay form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @return array
+ */
+function castleschool_worldpay_form($form, &$form_state) {
+  global $base_url;
+
+  $booking = db_select('castleschool_bookings', 'b')
+    ->fields('b')
+    ->condition('booking_id', $_SESSION['booking_id'], '=')
+    ->execute()
+    ->fetchAssoc();
+
+  if (variable_get('worldpay_mode') == 1) {
+    $testmode = 0;
+  } else {
+    $testmode = 100;
+  }
+
+  $instid = castleschool_get_worldpay_instid();
+  $description = 'English language course';
+
+  $form['instId'] = array(
+    '#value' => $instid,
+    '#type' => 'hidden',
+  );
+
+  $form['testMode'] = array(
+    '#value' => $testmode,
+    '#type' => 'hidden',
+  );
+  $form['cartId'] = array(
+    '#value' => $booking['booking_id'],
+    '#type' => 'hidden',
+  );
+
+  $form['amount'] = array(
+    '#value' => $booking['total_booking_fee'],
+    '#type' => 'hidden'
+  );
+
+  $form['currency'] = array(
+    '#value' => 'GBP',
+    '#type' => 'hidden',
+  );
+
+  $form['name'] = array(
+    '#value' => $booking['firstname'] . ' ' . $booking['lastname'],
+    '#type' => 'hidden',
+  );
+
+  $form['desc'] = array(
+    '#value' => $description,
+    '#type' => 'hidden',
+  );
+
+  $form['confirm_url'] = array(
+    '#value' => $base_url . '/booking-confirmation',
+    '#type' => 'hidden',
+  );
+
+  $form['cancel_url'] = array(
+    '#value' => $base_url . '/payment-cancelled',
+    '#type' => 'hidden',
+  );
+
+  $form['status_url'] = array(
+    '#value' => 'hello@edwinphillips.net', # <-- not sure
+    '#type' => 'hidden',
+  );
+
+  $form['address1'] = array(
+    '#value' => $booking['address'],
+    '#type' => 'hidden',
+  );
+
+  $form['tel'] = array(
+    '#value' => $booking['telephone'],
+    '#type' => 'hidden',
+  );
+
+  $form['postcode'] = array(
+    '#value' => '', # <--  Missing from booking form
+    '#type' => 'hidden',
+  );
+
+  $form['town'] = array(
+    '#value' => '', # <--  Missing from booking form
+    '#type' => 'hidden',
+  );
+
+  $form['region'] = array(
+    '#value' => '', # <--  Missing from booking form
+    '#type' => 'hidden',
+  );
+
+  $form['country'] = array(
+    '#value' => '', # <--  Missing from booking form
+    '#type' => 'hidden',
+  );
+
+  $form['email'] = array(
+    '#value' => $booking['email'],
+    '#type' => 'hidden',
+  );
+
+  return $form;
 }

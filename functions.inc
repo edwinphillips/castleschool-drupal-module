@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Returns Castle School Worldpay Installation Id.
+ *
+ * @return int
+ */
+function castleschool_get_worldpay_instid() {
+
+  return 1213743;
+}
+
+/**
  * Returns registration fee value.
  *
  * @return int
