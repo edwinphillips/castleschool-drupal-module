@@ -1106,6 +1106,8 @@ function castleschool_worldpay_form($form, &$form_state) {
     '#type' => 'hidden',
   );
 
+  #MC_courseId
+
   $form['amount'] = array(
     '#value' => $booking['total_booking_fee'],
     '#type' => 'hidden'
@@ -1115,6 +1117,8 @@ function castleschool_worldpay_form($form, &$form_state) {
     '#value' => 'GBP',
     '#type' => 'hidden',
   );
+
+  #MC_paymentType
 
   $form['name'] = array(
     '#value' => $booking['firstname'] . ' ' . $booking['lastname'],
@@ -1127,12 +1131,12 @@ function castleschool_worldpay_form($form, &$form_state) {
   );
 
   $form['confirm_url'] = array(
-    '#value' => $base_url . '/booking-confirmation',
+    '#value' => $base_url . 'https://castle-school:Mushr00m@staging.castle-school.co.uk/payment-response',
     '#type' => 'hidden',
   );
 
   $form['cancel_url'] = array(
-    '#value' => $base_url . '/payment-cancelled',
+    '#value' => $base_url . 'https://castle-school:Mushr00m@staging.castle-school.co.uk/payment-cancelled',
     '#type' => 'hidden',
   );
 
