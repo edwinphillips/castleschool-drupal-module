@@ -145,6 +145,25 @@ function castleschool_admin() {
     '#required' => TRUE,
   );
 
+  $form['online_payment_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Online payment options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['online_payment_options']['online_payment_functionality'] = array(
+    '#type' => 'select',
+    '#title' => t('Online payment functionality'),
+    '#options' => array(
+      0 => t('Disabled'),
+      1 => t('Enabled'),
+    ),
+    '#default_value' => variable_get('online_payment_functionality', 0),
+    '#description' => t('Whether or not the payment functionality is enabled.'),
+    '#required' => TRUE,
+  );
+
   $form['worldpay_options'] = array(
     '#type' => 'fieldset',
     '#title' => t('Worldpay options'),

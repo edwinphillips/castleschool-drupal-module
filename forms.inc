@@ -1060,7 +1060,11 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   $_SESSION['booking_id'] = $bookingid;
 
-  $form_state['redirect'] = 'proceed-to-worldpay';
+  if (variable_get('online_payment_functionality', 0) == 1) {
+      $form_state['redirect'] = 'proceed-to-worldpay';
+  } else {
+      $form_state['redirect'] = 'booking-confirmation';
+  }
 }
 
 /**
