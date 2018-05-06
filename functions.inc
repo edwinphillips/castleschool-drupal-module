@@ -1006,9 +1006,9 @@ function castleschool_show_course_booking_details($bookingid) {
                  atsor.airport_transfer_singleorreturn_label, cb.airport_transfer_fee, cb.total_booking_fee
             FROM castleschool_bookings cb
             JOIN castleschool_courses cc ON cc.course_id = cb.course_id
-            JOIN castleschool_accommodation_types at ON at.accommodation_type_id = cb.accommodation_type_id
-            JOIN castleschool_airport_transfer_types att ON att.airport_transfer_type_id = cb.airport_transfer_type_id
-            JOIN castleschool_airport_transfer_singleorreturn atsor ON atsor.airport_transfer_singleorreturn = cb.airport_transfer_singleorreturn
+       LEFT JOIN castleschool_accommodation_types at ON at.accommodation_type_id = cb.accommodation_type_id
+       LEFT JOIN castleschool_airport_transfer_types att ON att.airport_transfer_type_id = cb.airport_transfer_type_id
+       LEFT JOIN castleschool_airport_transfer_singleorreturn atsor ON atsor.airport_transfer_singleorreturn = cb.airport_transfer_singleorreturn
            WHERE cb.booking_id = :bookingid";
   $query = db_query($sql, array('bookingid' => $bookingid));
   $booking = $query->fetchAssoc();
@@ -1048,63 +1048,67 @@ function castleschool_show_course_booking_details($bookingid) {
   $markup .= '</table>';
   $markup .= '</div>';
 
-  $markup .= '<div class="table-responsive">';
-  $markup .= '<table class="table table-bordered table-striped">';
-  $markup .= '<thead>';
-  $markup .= '<tr class="info">';
-  $markup .= '<th width="65%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Accommodation</strong></p>';
-  $markup .= '</th>';
-  $markup .= '<th class="price" style="text-align: right;" width="35%">';
-  $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
-  $markup .= '</th>';
-  $markup .= '</tr>';
-  $markup .= '</thead>';
-  $markup .= '<tbody>';
-  $markup .= '<tr>';
-  $markup .= '<td>';
-  $markup .= '<p class="text-left">' . $booking['accommodation_type_name'] . '<br>' . date('M j, Y', $booking['accommodation_start_date']) . ' - ' . date('M j, Y', $booking['accommodation_end_date']) . '<br>Duration: ' . $booking['accommodation_duration_weeks'] . ' weeks</p>';
-  $markup .= '</td>';
-  $markup .= '<td class="price" style="text-align: right;">';
-  $markup .= '<p>&pound;' . $booking['accommodation_fee'] . '</p>';
-  $markup .= '</td>';
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>';
-  $markup .= '<p class="text-left">Accommodation finding fee</p>';
-  $markup .= '</td>';
-  $markup .= '<td class="price" style="text-align: right;">';
-  $markup .= '<p>&pound;' . $booking['accommodation_finding_fee'] . '</p>';
-  $markup .= '</td>';
-  $markup .= '</tr>';
-  $markup .= '</tbody>';
-  $markup .= '</table>';
-  $markup .= '</div>';
+  if (isset($booking['accommodation_fee']) && $booking['accommodation_fee'] > 0) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th width="65%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Accommodation</strong></p>';
+    $markup .= '</th>';
+    $markup .= '<th class="price" style="text-align: right;" width="35%">';
+    $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
+    $markup .= '</th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= '<p class="text-left">' . $booking['accommodation_type_name'] . '<br>' . date('M j, Y', $booking['accommodation_start_date']) . ' - ' . date('M j, Y', $booking['accommodation_end_date']) . '<br>Duration: ' . $booking['accommodation_duration_weeks'] . ' weeks</p>';
+    $markup .= '</td>';
+    $markup .= '<td class="price" style="text-align: right;">';
+    $markup .= '<p>&pound;' . $booking['accommodation_fee'] . '</p>';
+    $markup .= '</td>';
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= '<p class="text-left">Accommodation finding fee</p>';
+    $markup .= '</td>';
+    $markup .= '<td class="price" style="text-align: right;">';
+    $markup .= '<p>&pound;' . $booking['accommodation_finding_fee'] . '</p>';
+    $markup .= '</td>';
+    $markup .= '</tr>';
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
 
-  $markup .= '<div class="table-responsive">';
-  $markup .= '<table class="table table-bordered table-striped">';
-  $markup .= '<thead>';
-  $markup .= '<tr class="info">';
-  $markup .= '<th width="65%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Optional Extras</strong></p>';
-  $markup .= '</th>';
-  $markup .= '<th class="price" style="text-align: right;" width="35%">';
-  $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
-  $markup .= '</th>';
-  $markup .= '</tr>';
-  $markup .= '</thead>';
-  $markup .= '<tbody>';
-  $markup .= '<tr>';
-  $markup .= '<td>';
-  $markup .= '<p class="text-left">' . $booking['airport_transfer_type_label'] . ' - ' . $booking['airport_transfer_singleorreturn_label'] . '</p>';
-  $markup .= '</td>';
-  $markup .= '<td class="price" style="text-align: right;">';
-  $markup .= '<p>&pound;' . $booking['airport_transfer_fee'] . '</p>';
-  $markup .= '</td>';
-  $markup .= '</tr>';
-  $markup .= '</tbody>';
-  $markup .= '</table>';
-  $markup .= '</div>';
+  if (isset($booking['airport_transfer_fee']) && $booking['airport_transfer_fee'] > 0) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th width="65%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Optional Extras</strong></p>';
+    $markup .= '</th>';
+    $markup .= '<th class="price" style="text-align: right;" width="35%">';
+    $markup .= '<p style="margin-bottom: 0;"><strong>Price</strong></p>';
+    $markup .= '</th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= '<p class="text-left">' . $booking['airport_transfer_type_label'] . ' - ' . $booking['airport_transfer_singleorreturn_label'] . '</p>';
+    $markup .= '</td>';
+    $markup .= '<td class="price" style="text-align: right;">';
+    $markup .= '<p>&pound;' . $booking['airport_transfer_fee'] . '</p>';
+    $markup .= '</td>';
+    $markup .= '</tr>';
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
 
   $markup .= '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -1126,4 +1130,264 @@ function castleschool_show_course_booking_details($bookingid) {
   );
 
   return $form;
+}
+
+/**
+ * Returns country selection for form.
+ *
+ * @return array
+ */
+function castleschool_country_selection() {
+
+  return array(
+    "AF" => "Afghanistan",
+    "AX" => "Aland Islands",
+    "AL" => "Albania",
+    "DZ" => "Algeria",
+    "AS" => "American Samoa",
+    "AD" => "Andorra",
+    "AO" => "Angola",
+    "AI" => "Anguilla",
+    "AQ" => "Antarctica",
+    "AG" => "Antigua and Barbuda",
+    "AR" => "Argentina",
+    "AM" => "Armenia",
+    "AW" => "Aruba",
+    "AU" => "Australia",
+    "AT" => "Austria",
+    "AZ" => "Azerbaijan",
+    "BS" => "Bahamas",
+    "BH" => "Bahrain",
+    "BD" => "Bangladesh",
+    "BB" => "Barbados",
+    "BY" => "Belarus",
+    "BE" => "Belgium",
+    "BZ" => "Belize",
+    "BJ" => "Benin",
+    "BM" => "Bermuda",
+    "BT" => "Bhutan",
+    "BO" => "Bolivia",
+    "BQ" => "Bonaire, Sint Eustatius and Saba",
+    "BA" => "Bosnia and Herzegovina",
+    "BW" => "Botswana",
+    "BV" => "Bouvet Island",
+    "BR" => "Brazil",
+    "IO" => "British Indian Ocean Territory",
+    "BN" => "Brunei Darussalam",
+    "BG" => "Bulgaria",
+    "BF" => "Burkina Faso",
+    "BI" => "Burundi",
+    "KH" => "Cambodia",
+    "CM" => "Cameroon",
+    "CA" => "Canada",
+    "CV" => "Cape Verde",
+    "KY" => "Cayman Islands",
+    "CF" => "Central African Republic",
+    "TD" => "Chad",
+    "CL" => "Chile",
+    "CN" => "China",
+    "CX" => "Christmas Island",
+    "CC" => "Cocos (Keeling) Islands",
+    "CO" => "Colombia",
+    "KM" => "Comoros",
+    "CG" => "Congo",
+    "CK" => "Cook Islands",
+    "CR" => "Costa Rica",
+    "HR" => "Croatia",
+    "CU" => "Cuba",
+    "CW" => "Curacao",
+    "CY" => "Cyprus",
+    "CZ" => "Czech Republic",
+    "CI" => "Côte d'Ivoire",
+    "DK" => "Denmark",
+    "DJ" => "Djibouti",
+    "DM" => "Dominica",
+    "DO" => "Dominican Republic",
+    "EC" => "Ecuador",
+    "EG" => "Egypt",
+    "SV" => "El salvador",
+    "GQ" => "Equatorial Guinea",
+    "ER" => "Eritrea",
+    "EE" => "Estonia",
+    "ET" => "Ethiopia",
+    "FK" => "Falkland Islands",
+    "FO" => "Faroe Islands",
+    "FJ" => "Fiji",
+    "FI" => "Finland",
+    "FR" => "France",
+    "GF" => "French Guiana",
+    "PF" => "French Polynesia",
+    "TF" => "French Southern Territories",
+    "GA" => "Gabon",
+    "GM" => "Gambia",
+    "GE" => "Georgia",
+    "DE" => "Germany",
+    "GH" => "Ghana",
+    "GI" => "Gibraltar",
+    "GR" => "Greece",
+    "GL" => "Greenland",
+    "GD" => "Grenada",
+    "GP" => "Guadeloupe",
+    "GU" => "Guam",
+    "GT" => "Guatemala",
+    "GG" => "Guernsey",
+    "GN" => "Guinea",
+    "GW" => "Guinea-Bissau",
+    "GY" => "Guyana",
+    "HT" => "Haiti",
+    "HM" => "Heard Island and McDonald Islands",
+    "VA" => "Holy See (Vatican City State)",
+    "HN" => "Honduras",
+    "HK" => "Hong Kong",
+    "HU" => "Hungary",
+    "IS" => "Iceland",
+    "IN" => "India",
+    "ID" => "Indonesia",
+    "IR" => "Iran",
+    "IQ" => "Iraq",
+    "IE" => "Ireland",
+    "IM" => "Isle of Man",
+    "IL" => "Israel",
+    "IT" => "Italy",
+    "JM" => "Jamaica",
+    "JP" => "Japan",
+    "JE" => "Jersey",
+    "JO" => "Jordan",
+    "KZ" => "Kazakhstan",
+    "KE" => "Kenya",
+    "KI" => "Kiribati",
+    "KS" => "Kosovo",
+    "KW" => "Kuwait",
+    "KG" => "Kyrgyzstan",
+    "LA" => "Lao",
+    "LV" => "Latvia",
+    "LB" => "Lebanon",
+    "LS" => "Lesotho",
+    "LR" => "Liberia",
+    "LY" => "Libyan Arab Jamahiriya",
+    "LI" => "Liechtenstein",
+    "LT" => "Lithuania",
+    "LU" => "Luxembourg",
+    "MO" => "Macau",
+    "MK" => "Macedonia (FYR)",
+    "MG" => "Madagascar",
+    "MW" => "Malawi",
+    "MY" => "Malaysia",
+    "MV" => "Maldives",
+    "ML" => "Mali",
+    "MT" => "Malta",
+    "MH" => "Marshall Islands",
+    "MQ" => "Martinique",
+    "MR" => "Mauritania",
+    "MU" => "Mauritius",
+    "YT" => "Mayotte",
+    "MX" => "Mexico",
+    "FM" => "Micronesia",
+    "MD" => "Moldova",
+    "MC" => "Monaco",
+    "MN" => "Mongolia",
+    "ME" => "Montenegro",
+    "MS" => "Montserrat",
+    "MA" => "Morocco",
+    "MZ" => "Mozambique",
+    "MM" => "Myanmar",
+    "NA" => "Namibia",
+    "NR" => "Nauru",
+    "NP" => "Nepal",
+    "NL" => "Netherlands",
+    "NC" => "New Caledonia",
+    "NZ" => "New Zealand",
+    "NI" => "Nicaragua",
+    "NE" => "Niger",
+    "NG" => "Nigeria",
+    "NU" => "Niue",
+    "NF" => "Norfolk Island",
+    "KP" => "North Korea",
+    "MP" => "Northern Mariana Islands",
+    "NO" => "Norway",
+    "OM" => "Oman",
+    "PK" => "Pakistan",
+    "PW" => "Palau",
+    "PS" => "Palestinian Territory Occupied",
+    "PA" => "Panama",
+    "PG" => "Papua New Guinea",
+    "PY" => "Paraguay",
+    "PE" => "Peru",
+    "PH" => "Philippines",
+    "PN" => "Pitcairn",
+    "PL" => "Poland",
+    "PT" => "Portugal",
+    "PR" => "Puerto Rico",
+    "QA" => "Qatar",
+    "RE" => "Reunion",
+    "RO" => "Romania",
+    "RU" => "Russian Federation",
+    "RW" => "Rwanda",
+    "BL" => "Saint Barthelemy",
+    "SH" => "Saint Helena",
+    "KN" => "Saint Kitts and Nevis",
+    "LC" => "Saint Lucia",
+    "MF" => "Saint Martin (French)",
+    "PM" => "Saint Pierre and Miquelon",
+    "VC" => "Saint Vincent and the Grenadines",
+    "WS" => "Samoa",
+    "SM" => "San Marino",
+    "ST" => "Sao Tome and Principe",
+    "SA" => "Saudi Arabia",
+    "SN" => "Senegal",
+    "RS" => "Serbia",
+    "SC" => "Seychelles",
+    "SL" => "Sierra Leone",
+    "SG" => "Singapore",
+    "SX" => "Sint Maarten (Dutch)",
+    "SK" => "Slovakia",
+    "SI" => "Slovenia",
+    "SB" => "Solomon Islands",
+    "SO" => "Somalia",
+    "ZA" => "South Africa",
+    "GS" => "South Georgia",
+    "KR" => "South Korea",
+    "ES" => "Spain",
+    "LK" => "Sri Lanka",
+    "SD" => "Sudan",
+    "SR" => "Suriname",
+    "SJ" => "Svalbard and Jan Mayen Islands",
+    "SZ" => "Swaziland",
+    "SE" => "Sweden",
+    "CH" => "Switzerland",
+    "SY" => "Syria",
+    "TW" => "Taiwan",
+    "TJ" => "Tajikistan",
+    "TZ" => "Tanzania",
+    "TH" => "Thailand",
+    "CD" => "The Democratic Republic of the Congo",
+    "TL" => "Timor-Leste",
+    "TG" => "Togo",
+    "TK" => "Tokelau",
+    "TO" => "Tonga",
+    "TT" => "Trinidad and Tobago",
+    "TN" => "Tunisia",
+    "TR" => "Turkey",
+    "TM" => "Turkmenistan",
+    "TC" => "Turks and Caicos Islands",
+    "TV" => "Tuvalu",
+    "UG" => "Uganda",
+    "UA" => "Ukraine",
+    "AE" => "United Arab Emirates",
+    "GB" => "United Kingdom",
+    "US" => "United States",
+    "UM" => "United States Minor Outlying Islands",
+    "UY" => "Uruguay",
+    "UZ" => "Uzbekistan",
+    "VU" => "Vanuatu",
+    "VE" => "Venezuela",
+    "VN" => "Viet Nam",
+    "VG" => "Virgin Islands (British)",
+    "VI" => "Virgin Islands (U.S.)",
+    "WF" => "Wallis and Futuna Islands",
+    "EH" => "Western Sahara",
+    "YE" => "Yemen",
+    "ZM" => "Zambia",
+    "ZW" => "Zimbabwe",
+  );
 }

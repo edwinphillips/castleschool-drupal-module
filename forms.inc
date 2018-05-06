@@ -785,12 +785,56 @@ function castleschool_bookingform_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  $form['address'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Address'),
-    '#size' => 500,
-    '#maxlength' => 500,
+  $form['address1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address Line 1'),
+    '#size' => 40,
+    '#maxlength' => 84,
     '#required' => TRUE,
+  );
+
+  $form['address2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address Line 2'),
+    '#size' => 40,
+    '#maxlength' => 84,
+    '#required' => FALSE,
+  );
+
+  $form['towncity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Town/City'),
+    '#size' => 40,
+    '#maxlength' => 40,
+    '#required' => TRUE,
+  );
+
+  $form['region'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Region/county'),
+    '#size' => 40,
+    '#maxlength' => 40,
+    '#required' => TRUE,
+  );
+
+  $form['postcode'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Postcode'),
+    '#size' => 16,
+    '#maxlength' => 16,
+    '#required' => TRUE,
+  );
+
+  $form['country'] = array(
+    '#type' => 'select',
+    '#title' => t('Country'),
+    '#required' => TRUE,
+    '#options' => castleschool_country_selection(),
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    )
   );
 
   $form['nextofkin'] = array(
@@ -1048,7 +1092,12 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'passport_or_idnumber' => $formvals['passport'],
     'telephone' => $formvals['telephone'],
     'email' => $formvals['email'],
-    'address' => $formvals['address'],
+    'address1' => $formvals['address1'],
+    'address2' => $formvals['address2'],
+    'towncity' => $formvals['towncity'],
+    'region' => $formvals['region'],
+    'postcode' => $formvals['postcode'],
+    'country' => $formvals['country'],
     'nextofkin_name' => $formvals['nextofkin'],
     'nextofkin_telephone' => $formvals['nextofkintelephone'],
     'nextofkin_address' => $formvals['nextofkinaddress'],
