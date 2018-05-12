@@ -440,6 +440,14 @@ function castleschool_schema() {
         'not null' => TRUE,
         'default' => 0.0,
       ),
+      'outstanding_fee' => array(
+        'description' => 'Amount outstanding fee.',
+        'type' => 'numeric',
+        'precision' => 16,
+        'scale' => 2,
+        'not null' => TRUE,
+        'default' => 0.0,
+      ),
       'firstname' => array(
         'description' => 'The first name of the person booked onto the course.',
         'type' => 'varchar',
@@ -599,6 +607,28 @@ function castleschool_schema() {
       ),
     ),
   );
+
+
+  $schema['castleschool_payments'] = array(
+    'description' => 'Payment data received from WorldPay',
+    'fields' => array(
+      'payment_id' => array(
+        'description' => 'Primary key: the payment ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'worldpay_data' => array(
+        'description' => 'The data received from WorldPay.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('payment_id'),
+  );
+
 
   /*
   $schema['castleschool_course_pricetiers'] = array(

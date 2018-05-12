@@ -909,6 +909,26 @@ function castleschool_bookingform_form($form, &$form_state) {
     ),
   );
 
+  $form['paymentdesc'] = array(
+    '#markup' => '<p>You have the option to either pay the total costs for your course right now or a £100 deposit to secure your booking. If you select to pay a deposit for your course, you will need to settle the remaining balance 14 days prior to the start date of your course.</p>',
+  );
+
+  $form['paymentfullorpart'] = array(
+    '#type' => 'select',
+    '#title' => t('Do you want to pay the full amount or a £100 deposit?'),
+    '#required' => TRUE,
+    '#options' => array(
+      0 => t('Full amount'),
+      1 => t('£100 deposit'),
+    ),
+    '#default_value' => 0,
+    '#attributes' => array(
+      'class' => array(
+        'without-styles'
+      ),
+    ),
+  );
+
   $form['back_button'] = array(
     '#markup' => '<a class="btn btn-warning" href="/your-quote">' . t('Back') . '</a>',
   );
@@ -1066,7 +1086,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   simple_mail_send($from, $to, $subject, $body);
 
-  $bookingid = db_insert('castleschool_bookings')->fields(array(
+  $fields = array(
     'course_id' => $_SESSION['castleschool_course'],
     'hours_per_week' => $_SESSION['castleschool_hoursperweek'],
     'course_startdate' => $_SESSION['castleschool_day'],
@@ -1084,6 +1104,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'airport_transfer_singleorreturn' => $_SESSION['arrivaldeparture'],
     'airport_transfer_fee' => $_SESSION['airporttransferquote'],
     'total_booking_fee' => $quotetotal,
+    'outstanding_fee' => $quotetotal,
     'firstname' => $formvals['firstname'],
     'lastname' => $formvals['lastname'],
     'date_of_birth' => $formvals['dob'],
@@ -1105,9 +1126,20 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'medical_conditions' => $formvals['medicalconditions'],
     'animal_allergies' => $formvals['petallergies'],
     'created' => REQUEST_TIME,
-  ))->execute();
+  );
 
-  $_SESSION['booking_id'] = $bookingid;
+  if (isset($_SESSION['booking_id'])
+        && $exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
+                array(':uid' => $_SESSION['booking_id']))->fetchField()) {
+
+    $bookingid = db_update('castleschool_bookings')->fields($fields)
+            ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
+  } else {
+    $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
+    $_SESSION['booking_id'] = $bookingid;
+  }
+
+  $_SESSION['paymentfullorpart'] = $formvals['paymentfullorpart'];
 
   if (variable_get('online_payment_functionality', 0) == 1) {
       $form_state['redirect'] = 'proceed-to-worldpay';
@@ -1139,7 +1171,14 @@ function castleschool_worldpay_form($form, &$form_state) {
   }
 
   $instid = castleschool_get_worldpay_instid();
-  $description = 'English language course';
+
+  if (isset($_SESSION['paymentfullorpart']) && $_SESSION['paymentfullorpart'] == 0) {
+    $amount = $booking['total_booking_fee'];
+    $description = 'English language course';
+  } else {
+    $amount = 100;
+    $description = 'English language course deposit';
+  }
 
   $form['instId'] = array(
     '#value' => $instid,
@@ -1158,7 +1197,7 @@ function castleschool_worldpay_form($form, &$form_state) {
   #MC_courseId
 
   $form['amount'] = array(
-    '#value' => $booking['total_booking_fee'],
+    '#value' => $amount,
     '#type' => 'hidden'
   );
 
@@ -1180,12 +1219,12 @@ function castleschool_worldpay_form($form, &$form_state) {
   );
 
   $form['confirm_url'] = array(
-    '#value' => $base_url . 'https://castle-school:Mushr00m@staging.castle-school.co.uk/payment-response',
+    '#value' => $base_url . 'https://staging.castle-school.co.uk/payment-response',
     '#type' => 'hidden',
   );
 
   $form['cancel_url'] = array(
-    '#value' => $base_url . 'https://castle-school:Mushr00m@staging.castle-school.co.uk/payment-cancelled',
+    '#value' => $base_url . 'https://staging.castle-school.co.uk/payment-cancelled',
     '#type' => 'hidden',
   );
 
@@ -1195,32 +1234,37 @@ function castleschool_worldpay_form($form, &$form_state) {
   );
 
   $form['address1'] = array(
-    '#value' => $booking['address'],
+    '#value' => $booking['address1'],
+    '#type' => 'hidden',
+  );
+
+  $form['address2'] = array(
+    '#value' => $booking['address2'],
+    '#type' => 'hidden',
+  );
+
+  $form['town'] = array(
+    '#value' => $booking['towncity'],
+    '#type' => 'hidden',
+  );
+
+  $form['region'] = array(
+   '#value' => $booking['region'],
+   '#type' => 'hidden',
+  );
+
+  $form['postcode'] = array(
+    '#value' => $booking['postcode'],
+    '#type' => 'hidden',
+  );
+
+  $form['country'] = array(
+    '#value' => $booking['country'],
     '#type' => 'hidden',
   );
 
   $form['tel'] = array(
     '#value' => $booking['telephone'],
-    '#type' => 'hidden',
-  );
-
-  $form['postcode'] = array(
-    '#value' => '', # <--  Missing from booking form
-    '#type' => 'hidden',
-  );
-
-  $form['town'] = array(
-    '#value' => '', # <--  Missing from booking form
-    '#type' => 'hidden',
-  );
-
-  $form['region'] = array(
-    '#value' => '', # <--  Missing from booking form
-    '#type' => 'hidden',
-  );
-
-  $form['country'] = array(
-    '#value' => '', # <--  Missing from booking form
     '#type' => 'hidden',
   );
 
