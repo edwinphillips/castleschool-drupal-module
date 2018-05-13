@@ -1128,19 +1128,10 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'created' => REQUEST_TIME,
   );
 
-  if (isset($_SESSION['booking_id'])) {
-
-    $exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
-            array(':uid' => $_SESSION['booking_id']))->fetchField();
-
-    if (!is_null($exists)) {
-      $bookingid = db_update('castleschool_bookings')->fields($fields)
-              ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
-    } else {
-      $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
-      $_SESSION['booking_id'] = $bookingid;
-    }
-
+  if (isset($_SESSION['booking_id']) && db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
+            array(':uid' => $_SESSION['booking_id']))->fetchField()) {
+    $bookingid = db_update('castleschool_bookings')->fields($fields)
+            ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
   } else {
     $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
     $_SESSION['booking_id'] = $bookingid;
@@ -1207,8 +1198,6 @@ function castleschool_worldpay_form($form, &$form_state) {
     '#type' => 'hidden',
   );
 
-  #MC_courseId
-
   $form['amount'] = array(
     '#value' => $amount,
     '#type' => 'hidden'
@@ -1218,8 +1207,6 @@ function castleschool_worldpay_form($form, &$form_state) {
     '#value' => 'GBP',
     '#type' => 'hidden',
   );
-
-  #MC_paymentType
 
   $form['name'] = array(
     '#value' => $booking['firstname'] . ' ' . $booking['lastname'],
@@ -1232,12 +1219,12 @@ function castleschool_worldpay_form($form, &$form_state) {
   );
 
   $form['confirm_url'] = array(
-    '#value' => $base_url . 'https://staging.castle-school.co.uk/payment-response',
+    '#value' => $base_url . $base_path . 'payment-response',
     '#type' => 'hidden',
   );
 
   $form['cancel_url'] = array(
-    '#value' => $base_url . 'https://staging.castle-school.co.uk/payment-cancelled',
+    '#value' => $base_url . $base_path . 'payment-cancelled',
     '#type' => 'hidden',
   );
 
