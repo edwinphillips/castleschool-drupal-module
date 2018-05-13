@@ -1129,7 +1129,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   );
 
   if (isset($_SESSION['booking_id'])
-        && $exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
+        && !$exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
                 array(':uid' => $_SESSION['booking_id']))->fetchField()) {
 
     $bookingid = db_update('castleschool_bookings')->fields($fields)
