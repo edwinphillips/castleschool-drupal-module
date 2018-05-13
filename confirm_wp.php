@@ -10,10 +10,34 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 if ($response['transStatus'] == 'Y') {
 
+  // Create/retrieve the users Drupal account
+  if (!$account = user_load_by_mail($response['email'])) {
+
+    // Generate a random password
+    $password = user_password(8);
+
+    // Set up the user fields
+    $fields = array(
+      'name' => $response['email'],
+      'mail' => $response['email'],
+      'pass' => $password,
+      'status' => 0,
+      'init' => 'email address',
+      'roles' => array(
+        DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+        4 => 'Student',
+      ),
+    );
+
+    // Create user
+    $account = user_save('', $fields);
+  }
+
   // Write the WorldPay response to the database
   $fields = array(
     'worldpay_data' => json_encode($response),
-    'booking_id' => $response['cartId']
+    'booking_id' => $response['cartId'],
+    'user_id' => $account->uid,
   );
   $paymentid = db_insert('castleschool_payments')->fields($fields)->execute();
 
