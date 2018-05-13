@@ -1128,12 +1128,19 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     'created' => REQUEST_TIME,
   );
 
-  if (isset($_SESSION['booking_id'])
-        && !$exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
-                array(':uid' => $_SESSION['booking_id']))->fetchField()) {
+  if (isset($_SESSION['booking_id'])) {
 
-    $bookingid = db_update('castleschool_bookings')->fields($fields)
-            ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
+    $exists = db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
+            array(':uid' => $_SESSION['booking_id']))->fetchField();
+
+    if (!is_null($exists)) {
+      $bookingid = db_update('castleschool_bookings')->fields($fields)
+              ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
+    } else {
+      $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
+      $_SESSION['booking_id'] = $bookingid;
+    }
+
   } else {
     $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
     $_SESSION['booking_id'] = $bookingid;
