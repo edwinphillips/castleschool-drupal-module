@@ -1157,6 +1157,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
  */
 function castleschool_worldpay_form($form, &$form_state) {
   global $base_url;
+  global $base_path;
 
   $booking = db_select('castleschool_bookings', 'b')
     ->fields('b')
@@ -1191,6 +1192,11 @@ function castleschool_worldpay_form($form, &$form_state) {
   );
   $form['cartId'] = array(
     '#value' => $booking['booking_id'],
+    '#type' => 'hidden',
+  );
+
+  $form['MC_callback'] = array(
+    '#value' => $base_url . $base_path . 'sites/all/modules/castleschool/confirm_wp.php',
     '#type' => 'hidden',
   );
 
