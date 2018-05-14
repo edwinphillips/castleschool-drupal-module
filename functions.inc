@@ -1142,6 +1142,34 @@ function castleschool_show_course_booking_details($bookingid) {
   $markup .= '</table>';
   $markup .= '</div>';
 
+  $payments = db_query("SELECT * FROM {castleschool_payments} WHERE booking_id = :bookingid", array('bookingid' => $bookingid));
+
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th width="100%" colspan="2">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Data</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+
+  while ($payment = $payments->fetchAssoc()) {
+    $markup .= '<tr>';
+    $markup .= '<td>';
+    $markup .= 'ID:' . $payment['payment_id'];
+    $markup .= '</td>';
+    $markup .= '<td>';
+    $markup .= $payment['worldpay_data'];
+    $markup .= '</td>';
+    $markup .= '</tr>';
+  }
+
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
+
   $form['bookingdetails'] = array(
     '#markup' => $markup,
   );
