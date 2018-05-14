@@ -236,6 +236,9 @@ function castleschool_block_info() {
     'castleschool_worldpay' => array(
       'info' => t('Castle School Proceed to Worldpay'),
     ),
+    'castleschool_confirmation' => array(
+      'info' => t('Castle School Payment Confirmation'),
+    ),
   );
 }
 
@@ -263,6 +266,8 @@ function castleschool_block_configure($delta='') {
     case 'castleschool_quotesummary' :
       break;
     case 'castleschool_worldpay' :
+      break;
+    case 'castleschool_confirmation' :
       break;
   }
 
@@ -292,6 +297,8 @@ function castleschool_block_save($delta = '', $edit = array()) {
     case 'castleschool_quotesummary' :
       break;
     case 'castleschool_worldpay' :
+      break;
+    case 'castleschool_confirmation' :
       break;
   }
 }
@@ -477,6 +484,12 @@ function castleschool_block_view($delta='') {
           ),
         ),
       );
+      break;
+    case 'castleschool_confirmation' :
+      $block['content'] = array(
+        '#markup' => castleschool_payment_confirmation_content($_SESSION['booking_id']),
+      );
+      unset($_SESSION['booking_id']);
       break;
   }
 

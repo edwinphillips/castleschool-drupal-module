@@ -708,6 +708,23 @@ function castleschool_quotesummary_content() {
 }
 
 /**
+ * Returns HTML to populate the payment confirmation block.
+ *
+ * @param int $bookingid The Booking Id
+ * @return string
+ */
+function castleschool_payment_confirmation_content($bookingid) {
+
+  if (!empty($bookingid)) {
+    $markup = "<p>Your payment for booking Id {$bookingid} has been confirmed.</p>";
+  } else {
+    $markup = "<p>No booking Id found.</p>";
+  }
+
+  return $markup;
+}
+
+/**
  * Accommodation selected action
  *
  * @param int $selection
