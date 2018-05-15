@@ -967,7 +967,8 @@ function castleschool_calculate_accommodation_quote($accommodationid, $coursesta
  */
 function castleschool_show_course_bookings() {
 
-  $sql = "SELECT cb.booking_id, cc.course_name,  cb.firstname, cb.lastname, cb.created AS booking_created, cbs.status_label AS status
+  $sql = "SELECT cb.booking_id, cc.course_name,  cb.firstname, cb.lastname, cb.created AS booking_created, cbs.status_label AS status,
+                 total_booking_fee, outstanding_fee
             FROM {castleschool_bookings} cb
             JOIN {castleschool_courses} cc ON cc.course_id = cb.course_id
             JOIN castleschool_booking_status cbs ON cbs.status_id = cb.status_id
@@ -984,6 +985,8 @@ function castleschool_show_course_bookings() {
   $markup .= "<th>{$t('Name')}</th>";
   $markup .= "<th>{$t('Date')}</th>";
   $markup .= "<th>{$t('Course')}</th>";
+  $markup .= "<th>{$t('Total')}</th>";
+  $markup .= "<th>{$t('Outstanding')}</th>";
   $markup .= "<th>{$t('Status')}</th>";
   $markup .= "<th>{$t('Actions')}</th>";
   $markup .= '</tr>';
@@ -992,10 +995,17 @@ function castleschool_show_course_bookings() {
     $markup .= '<tr>';
     $markup .= "<td>{$booking->booking_id}</td>";
     $markup .= "<td>{$booking->firstname} {$booking->lastname}</td>";
-    $markup .= '<td>' . date('jS M Y H:i', $booking->booking_created) . '</td>';
+    $markup .= '<td>' . date('M j, Y g:i:s A', $booking->booking_created) . '</td>';
     $markup .= "<td>{$booking->course_name}</td>";
+    $markup .= "<td>&pound;{$booking->total_booking_fee}</td>";
+    $markup .= "<td>&pound;{$booking->outstanding_fee}</td>";
     $markup .= "<td>{$booking->status}</td>";
-    $markup .= "<td><a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}'>View</a></td>";
+    $markup .= "<td>";
+    $markup .= "<a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}'>View</a>";
+    if ($booking->outstanding_fee > 0) {
+      $markup .= " | <a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}/payment'>Make payment</a>";
+    }
+    $markup .= "</td>";
     $markup .= '</tr>';
   }
 
@@ -1148,20 +1158,36 @@ function castleschool_show_course_booking_details($bookingid) {
   $markup .= '<table class="table table-bordered table-striped">';
   $markup .= '<thead>';
   $markup .= '<tr class="info">';
-  $markup .= '<th width="100%" colspan="2">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Data</strong></p>';
+  $markup .= '<th width="25%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment ID</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th width="25%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Date/Time</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th width="25%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>WorldPay Transaction ID</strong></p>';
+  $markup .= '</th>';
+  $markup .= '<th width="25%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Amount</strong></p>';
   $markup .= '</th>';
   $markup .= '</tr>';
   $markup .= '</thead>';
   $markup .= '<tbody>';
 
   while ($payment = $payments->fetchAssoc()) {
+    $worldpaydata = json_decode($payment['worldpay_data']);
     $markup .= '<tr>';
     $markup .= '<td>';
-    $markup .= 'ID:' . $payment['payment_id'];
+    $markup .= $payment['payment_id'];
     $markup .= '</td>';
     $markup .= '<td>';
-    $markup .= $payment['worldpay_data'];
+    $markup .= date('M j, Y g:i:s A', $worldpaydata->transTime / 1000);
+    $markup .= '</td>';
+    $markup .= '<td>';
+    $markup .= $worldpaydata->transId;
+    $markup .= '</td>';
+    $markup .= '<td>';
+    $markup .= $worldpaydata->authAmountString;
     $markup .= '</td>';
     $markup .= '</tr>';
   }
