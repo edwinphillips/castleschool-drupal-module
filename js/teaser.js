@@ -1,11 +1,7 @@
 (function ($) {
   Drupal.behaviors.castleschool = {
     attach: function (context, settings) {
-        
 
-        
-        
-        
         $('select[name="hoursperweek"]').once(function(){
             $('select[name="hoursperweek"]').on('change',function() {
                 updatequote();
@@ -50,11 +46,14 @@
         var width7 = item7.width();
 
         var formwidth = width1 + width2 + margin2 + width3 + margin3 + width4 + margin4 + width5 + margin5 + width6 + margin6 + width7;
+        var teaserblockwidth = $('#block-castleschool-castleschool-teaser').width();
 
-        var form = $('#castleschool-teaser-form');
-        form.width(formwidth);
-        form.css('margin-left', 'auto');
-        form.css('margin-right', 'auto');
+        if (teaserblockwidth > formwidth) {
+            var form = $('#castleschool-teaser-form');
+            form.width(formwidth);
+            form.css('margin-left', 'auto');
+            form.css('margin-right', 'auto');
+        }
 
         function updatequote() {
             var course = $('select[name="course"]').val();
