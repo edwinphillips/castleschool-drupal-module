@@ -1086,6 +1086,29 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   simple_mail_send($from, $to, $subject, $body);
 
+  // Create a Drupal user if necessary.
+  if (!$account = user_load_by_mail($formvals['email'])) {
+
+    // Generate a random password
+    $password = user_password(8);
+
+    // Set up the user fields
+    $fields = array(
+      'name' => $formvals['email'],
+      'mail' => $formvals['email'],
+      'pass' => $password,
+      'status' => 0,
+      'init' => 'email address',
+      'roles' => array(
+        DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+        4 => 'Student',
+      ),
+    );
+
+    // Create user
+    $account = user_save('', $fields);
+  }
+
   $fields = array(
     'course_id' => $_SESSION['castleschool_course'],
     'hours_per_week' => $_SESSION['castleschool_hoursperweek'],
