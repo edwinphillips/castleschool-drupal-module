@@ -49,10 +49,11 @@
         var teaserblockwidth = $('#block-castleschool-castleschool-teaser').width();
 
         if (teaserblockwidth > formwidth) {
-            var form = $('#castleschool-teaser-form');
-            form.width(formwidth);
-            form.css('margin-left', 'auto');
-            form.css('margin-right', 'auto');
+            $(context).find('#castleschool-teaser-form').once('some-unique-key', function() {
+                $(this).width(formwidth);
+                $(this).css('margin-left', 'auto');
+                $(this).css('margin-right', 'auto');
+            });
         }
 
         function updatequote() {
