@@ -1298,3 +1298,57 @@ function castleschool_worldpay_form($form, &$form_state) {
 
   return $form;
 }
+
+/**
+ * Make course payment form
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param int $bookingid
+ * @return array
+ */
+function castleschool_make_course_booking_payment_form($form, &$form_state, $bookingid) {
+
+  $sql = "SELECT cb.firstname, cb.lastname, cb.created, cc.course_name, cb.course_startdate, cb.hours_per_week,
+                 cb.course_length_weeks, cb.total_booking_fee, cb.outstanding_fee
+            FROM castleschool_bookings cb
+            JOIN castleschool_courses cc ON cc.course_id = cb.course_id
+           WHERE booking_id = :bookingid";
+  $query = db_query($sql, array('bookingid' => $bookingid));
+  $booking = $query->fetchAssoc();
+
+  $markup  = '<p>Make a payment for booking ID ' . $bookingid . '</p>';
+  $markup .= '<ul>';
+  $markup .= "<li>Name: {$booking['firstname']} {$booking['lastname']}</li>";
+  $markup .= "<li>Booking made: {$booking['created']}</li>";
+  $markup .= "<li>Course: {$booking['course_name']}</li>";
+  $markup .= "<li>Course start date: {$booking['course_startdate']}</li>";
+  $markup .= "<li>Hourse per week: {$booking['hours_per_week']}</li>";
+  $markup .= "<li>Course length: {$booking['course_length_weeks']} weeks</li>";
+  $markup .= "<li>Total booking fee: £{$booking['total_booking_fee']}</li>";
+  $markup .= "<li>Outstanding fee: £{$booking['outstanding_fee']}</li>";
+  $markup .= '</ul>';
+
+  $form['bookingdetails'] = array(
+    '#markup' => $markup,
+  );
+
+  $form['payment_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Payment amount (£)'),
+    '#size' => 5,
+    '#maxlength' => 5,
+    '#required' => TRUE,
+  );
+
+  $form['back_button'] = array(
+    '#markup' => '<a class="btn btn-warning" href="/admin/settings/castleschool/coursebookings">' . t('Back') . '</a>',
+  );
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Continue'),
+  );
+
+  return $form;
+}

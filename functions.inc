@@ -1462,3 +1462,14 @@ function castleschool_country_selection() {
     "ZW" => "Zimbabwe",
   );
 }
+
+/**
+ * Returns 'Make Course Booking Payment' form
+ *
+ * @param int $bookingid
+ * @return drupal form
+ */
+function castleschool_make_course_booking_payment($bookingid) {
+
+  return drupal_get_form('castleschool_make_course_booking_payment_form', $bookingid);
+}
