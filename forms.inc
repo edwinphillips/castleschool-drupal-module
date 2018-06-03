@@ -1248,7 +1248,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     $markup .= '</tr>';
   }
 
-  if (isset($_SESSION['whichairport']) && !is_null($_SESSION['whichairport'])) {
+  if (isset($_SESSION['whichairport']) && $_SESSION['whichairport'] > 0) {
     $markup .= '<tr>';
     $markup .= '<td>Airport transfer type:</td>';
     // Look up the accommodation type
