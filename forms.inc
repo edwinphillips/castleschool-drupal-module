@@ -1108,7 +1108,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     ->condition('c.course_id', $_SESSION['castleschool_course'])
     ->execute();
   $result = $query->fetchObject();
-  $coursename = $result->course_id;
+  $coursename = $result->course_name;
   $markup .= "<td>{$coursename}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
@@ -1118,7 +1118,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '<tr>';
   $markup .= '<td>Course start date:</td>';
   $coursestartdate = date('l jS F Y', $_SESSION['castleschool_day']);
-  $markup .= "<td>{}</td>";
+  $markup .= "<td>{$coursestartdate}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course end date:</td>';
@@ -1145,7 +1145,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     ->condition('at.accommodation_type_id', $_SESSION['accommodationid'])
     ->execute();
   $result = $query->fetchObject();
-  $accommodationtype = $result->course_id;
+  $accommodationtype = $result->accommodation_type_name;
   $markup .= "<td>{$accommodationtype}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
@@ -1189,7 +1189,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     ->condition('atsor.airport_transfer_singleorreturn', $_SESSION['arrivaldeparture'])
     ->execute();
   $result = $query->fetchObject();
-  $airporttransfersingleorreturn = $result->airport_transfer_type_label;
+  $airporttransfersingleorreturn = $result->airport_transfer_singleorreturn_label;
   $markup .= "<td>{$airporttransfersingleorreturn}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
