@@ -1086,6 +1086,145 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   simple_mail_send($from, $to, $subject, $body);
 
+  // Send email to student
+  $from = 'info@castle-school.co.uk';
+  $to = 'hello@edwinphillips.net';
+  $subject = 'Booking Confirmation from The Castle School of English';
+
+  $markup  = '<h1>Booking Confirmation from The Castle School of English</h1>';
+  $markup .= '<p>Thank you for enrolling on one of our courses. This email is confirmation of your booking.</p>';
+  $markup .= '<p>Your booking ID is #00000001.</p>';
+  $markup .= '<p>Your course details are provided below. If you have any questions or concerns before the start date of your course then please do not hesitate to contact us.</p>';
+  $markup .= '<table>';
+  $markup .= '<tr>';
+  $markup .= '<td>Student Name:</td>';
+  $markup .= "<td>{$formvals['firstname']} {$formvals['lastname']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Course name:</td>';
+  $markup .= '<td></td>'; // <--- TODO
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Hours per week:</td>';
+  $markup .= "<td>{$_SESSION['castleschool_hoursperweek']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Course start date:</td>';
+  $markup .= "<td>{$_SESSION['castleschool_day']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Course end date:</td>';
+  $courseenddate = $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']);
+  $markup .= "<td>{$courseenddate}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Course length:</td>';
+  $markup .= "<td>{$_SESSION['castleschool_weeks']} weeks</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Course fee:</td>';
+  $markup .= "<td>{$coursequote}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Registration fee:</td>';
+  $markup .= "<td>{$registrationfee}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation type:</td>';
+  $markup .= "<td>{$_SESSION['accommodationid']}</td>"; // <-- TODO
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation start date:</td>';
+  $markup .= "<td>{$_SESSION['accommodationstartdate']}</td>"; // <-- TODO date format
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation end date:</td>';
+  $accommodationenddate = $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']);
+  $markup .= "<td>{$accommodationenddate}</td>"; // <-- TODO date format
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation length:</td>';
+  $markup .= "<td>{$_SESSION['accommodationduration']} weeks</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation fee:</td>';
+  $markup .= "<td>{$accommodationfee}</td>"; // <-- TODO
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Accommodation finding fee:</td>';
+  $markup .= "<td>{$accommodationfindingfee}</td>"; // <-- TODO
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Airport transfer type:</td>';
+  $markup .= "<td>{$_SESSION['whichairport']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Airport transfer single/return:</td>';
+  $markup .= "<td>{$_SESSION['arrivaldeparture']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Airport transfer fee:</td>';
+  $markup .= "<td>{$_SESSION['airporttransferquote']}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>Total booking fee:</td>';
+  $markup .= "<td>{$quotetotal}</td>";
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '</table>';
+  $markup .= '<p>View our terms & conditions <a href="https://www.castle-school.co.uk/terms-and-conditions">here</a>.</p>';
+  $markup .= '<table style="width:400px" cellspacing="0" cellpadding="0" border="0">';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p>Yours sincerely,</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<span style="font-family:Calibri;font-size:12pt;font-weight:bold;color:rgb(51,51,51)"><br/>The Castle School of English</span>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<span style="color:#333333;font-size:10pt;font-family:Calibri"><br/>T: <a href="denied:tel:+4401273748185" style="color:#06c">+44 (0) 1273 748185</a></span>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<span style="color:#333333;font-size:10pt;font-family:Calibri">E: <a href="mailto:info@castle-school.co.uk" style="color:#06c">info@castle-school.co.uk</a></span>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<span style="color:#333333;font-size:10pt;font-family:Calibri">W: <a href="https://www.castle-school.co.uk" style="color:#06c">www.castle-school.co.uk</a></span>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td style="padding-top:20px;padding-bottom:20px"><a href="https://www.castle-school.co.uk"><img src="https://www.castle-school.co.uk/sites/default/files/castle-school-logo_1.png" alt="The Castle School of English" style="display:block" width="170" height="52"></a></td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td style="padding-top:10px;padding-bottom:6px" valign="middle">';
+  $markup .= '<table cellspacing="0" cellpadding="0" border="0">';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td style="padding-right:5px"><a href="https://www.facebook.com/CastleSchoolofEnglish"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/facebook.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '<td style="padding-right:5px"><a href="https://twitter.com/castleschool"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/twitter.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '<td style="padding-right:5px"><a href="https://www.youtube.com/channel/UC-sFhlO1P8I2Jq4SpnmgWcA"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/youtube.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td style="max-width:400px;text-align:justify;border-top:1px solid rgb(169, 169, 169);padding-top:3px;font-size:8pt;color:rgb(136, 136, 136)" colspan="2"> <span style="font-family:Calibri;font-size:8pt;color:rgb(136, 136, 136)"><br/><strong>The Castle School of English is registered in the UK as company number 6405679 12 Dyke Road, Brighton, East Sussex, England, BN1 3FE</strong><br><br>The information within this email is confidential and solely for the use of the intended recipient(s). If you receive this email in error, please notify the sender and delete the email from your system immediately. In such instances you must not make use of the email or its contents. Views expressed in this email do not necessarily reflect the views of The Castle School of English.<br><br></span></td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+
+  $body = $markup;
+
+  simple_mail_send($from, $to, $subject, $body);
+
   // Create a Drupal user if necessary.
   if (!$account = user_load_by_mail($formvals['email'])) {
 
