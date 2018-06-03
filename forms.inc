@@ -1102,7 +1102,14 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course name:</td>';
-  $markup .= '<td></td>'; // <--- TODO
+  // Look up the coursename
+  $query = db_select('castleschool_courses', 'c')
+    ->fields('c', array('course_name'))
+    ->condition('c.course_id', $_SESSION['castleschool_course'])
+    ->execute();
+  $result = $query->fetchObject();
+  $coursename = $result->course_id;
+  $markup .= "<td>{$coursename}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Hours per week:</td>';
@@ -1110,11 +1117,12 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course start date:</td>';
-  $markup .= "<td>{$_SESSION['castleschool_day']}</td>";
+  $coursestartdate = date('l jS F Y', $_SESSION['castleschool_day']);
+  $markup .= "<td>{}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course end date:</td>';
-  $courseenddate = $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']);
+  $courseenddate = date('l jS F Y', $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']));
   $markup .= "<td>{$courseenddate}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
@@ -1123,24 +1131,32 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course fee:</td>';
-  $markup .= "<td>{$coursequote}</td>";
+  $markup .= "<td>&pound;{$coursequote}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Registration fee:</td>';
-  $markup .= "<td>{$registrationfee}</td>";
+  $markup .= "<td>&pound;{$registrationfee}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation type:</td>';
-  $markup .= "<td>{$_SESSION['accommodationid']}</td>"; // <-- TODO
+  // Look up the accommodation type
+  $query = db_select('castleschool_accommodation_types', 'at')
+    ->fields('at', array('accommodation_type_name'))
+    ->condition('at.accommodation_type_id', $_SESSION['accommodationid'])
+    ->execute();
+  $result = $query->fetchObject();
+  $accommodationtype = $result->course_id;
+  $markup .= "<td>{$accommodationtype}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation start date:</td>';
-  $markup .= "<td>{$_SESSION['accommodationstartdate']}</td>"; // <-- TODO date format
+  $accommodationstartdate = date('l jS F Y', $_SESSION['accommodationstartdate']);
+  $markup .= "<td>{$accommodationstartdate}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation end date:</td>';
-  $accommodationenddate = $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']);
-  $markup .= "<td>{$accommodationenddate}</td>"; // <-- TODO date format
+  $accommodationenddate = date('l jS F Y', $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']));
+  $markup .= "<td>{$accommodationenddate}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation length:</td>';
@@ -1148,27 +1164,41 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation fee:</td>';
-  $markup .= "<td>{$accommodationfee}</td>"; // <-- TODO
+  $markup .= "<td>&pound;{$accommodationfee}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Accommodation finding fee:</td>';
-  $markup .= "<td>{$accommodationfindingfee}</td>"; // <-- TODO
+  $markup .= "<td>&pound;{$accommodationfindingfee}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Airport transfer type:</td>';
-  $markup .= "<td>{$_SESSION['whichairport']}</td>";
+  // Look up the accommodation type
+  $query = db_select('castleschool_airport_transfer_types', 'att')
+    ->fields('att', array('airport_transfer_type_label'))
+    ->condition('att.airport_transfer_type_id', $_SESSION['whichairport'])
+    ->execute();
+  $result = $query->fetchObject();
+  $accommodationtransfertype = $result->airport_transfer_type_label;
+  $markup .= "<td>{$accommodationtransfertype}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Airport transfer single/return:</td>';
-  $markup .= "<td>{$_SESSION['arrivaldeparture']}</td>";
+  // Look up the accommodation type
+  $query = db_select('castleschool_airport_transfer_singleorreturn', 'atsor')
+    ->fields('atsor', array('airport_transfer_singleorreturn_label'))
+    ->condition('atsor.airport_transfer_singleorreturn', $_SESSION['arrivaldeparture'])
+    ->execute();
+  $result = $query->fetchObject();
+  $airporttransfersingleorreturn = $result->airport_transfer_type_label;
+  $markup .= "<td>{$airporttransfersingleorreturn}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Airport transfer fee:</td>';
-  $markup .= "<td>{$_SESSION['airporttransferquote']}</td>";
+  $markup .= "<td>&pound;{$_SESSION['airporttransferquote']}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Total booking fee:</td>';
-  $markup .= "<td>{$quotetotal}</td>";
+  $markup .= "<td>&pound;{$quotetotal}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '</table>';
