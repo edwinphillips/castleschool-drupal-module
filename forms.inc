@@ -1086,6 +1086,80 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   simple_mail_send($from, $to, $subject, $body);
 
+  // Create a Drupal user if necessary.
+  if (!$account = user_load_by_mail($formvals['email'])) {
+
+    // Generate a random password
+    $password = user_password(8);
+
+    // Set up the user fields
+    $fields = array(
+      'name' => $formvals['email'],
+      'mail' => $formvals['email'],
+      'pass' => $password,
+      'status' => 0,
+      'init' => 'email address',
+      'roles' => array(
+        DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+        4 => 'Student',
+      ),
+    );
+
+    // Create user
+    $account = user_save('', $fields);
+  }
+
+  $fields = array(
+    'course_id' => $_SESSION['castleschool_course'],
+    'hours_per_week' => $_SESSION['castleschool_hoursperweek'],
+    'course_startdate' => $_SESSION['castleschool_day'],
+    'course_enddate' => $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']),
+    'course_length_weeks' => $_SESSION['castleschool_weeks'],
+    'course_fee' => $coursequote,
+    'registration_fee' => $registrationfee,
+    'accommodation_type_id' => $_SESSION['accommodationid'],
+    'accommodation_start_date' => $_SESSION['accommodationstartdate'],
+    'accommodation_end_date' => $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']),
+    'accommodation_duration_weeks' => $_SESSION['accommodationduration'],
+    'accommodation_fee' => $accommodationfee,
+    'accommodation_finding_fee' => $accommodationfindingfee,
+    'airport_transfer_type_id' => $_SESSION['whichairport'],
+    'airport_transfer_singleorreturn' => $_SESSION['arrivaldeparture'],
+    'airport_transfer_fee' => $_SESSION['airporttransferquote'],
+    'total_booking_fee' => $quotetotal,
+    'outstanding_fee' => $quotetotal,
+    'firstname' => $formvals['firstname'],
+    'lastname' => $formvals['lastname'],
+    'date_of_birth' => $formvals['dob'],
+    'gender' => $formvals['gender'],
+    'nationality' => $formvals['nationality'],
+    'passport_or_idnumber' => $formvals['passport'],
+    'telephone' => $formvals['telephone'],
+    'email' => $formvals['email'],
+    'address1' => $formvals['address1'],
+    'address2' => $formvals['address2'],
+    'towncity' => $formvals['towncity'],
+    'region' => $formvals['region'],
+    'postcode' => $formvals['postcode'],
+    'country' => $formvals['country'],
+    'nextofkin_name' => $formvals['nextofkin'],
+    'nextofkin_telephone' => $formvals['nextofkintelephone'],
+    'nextofkin_address' => $formvals['nextofkinaddress'],
+    'smokes' => $formvals['smoke'],
+    'medical_conditions' => $formvals['medicalconditions'],
+    'animal_allergies' => $formvals['petallergies'],
+    'created' => REQUEST_TIME,
+  );
+
+  if (isset($_SESSION['booking_id']) && db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
+            array(':uid' => $_SESSION['booking_id']))->fetchField()) {
+    $bookingid = db_update('castleschool_bookings')->fields($fields)
+            ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
+  } else {
+    $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
+    $_SESSION['booking_id'] = $bookingid;
+  }
+
   // Send email to student
   $from = 'info@castle-school.co.uk';
   $to = 'hello@edwinphillips.net';
@@ -1093,7 +1167,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
 
   $markup  = '<h1>Booking Confirmation from The Castle School of English</h1>';
   $markup .= '<p>Thank you for enrolling on one of our courses. This email is confirmation of your booking.</p>';
-  $markup .= '<p>Your booking ID is #00000001.</p>';
+  $markup .= "<p>Your booking ID is #{$bookingid}.</p>";
   $markup .= '<p>Your course details are provided below. If you have any questions or concerns before the start date of your course then please do not hesitate to contact us.</p>';
   $markup .= '<table>';
   $markup .= '<tr>';
@@ -1137,39 +1211,43 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '<td>Registration fee:</td>';
   $markup .= "<td>&pound;{$registrationfee}</td>";
   $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation type:</td>';
-  // Look up the accommodation type
-  $query = db_select('castleschool_accommodation_types', 'at')
-    ->fields('at', array('accommodation_type_name'))
-    ->condition('at.accommodation_type_id', $_SESSION['accommodationid'])
-    ->execute();
-  $result = $query->fetchObject();
-  $accommodationtype = $result->accommodation_type_name;
-  $markup .= "<td>{$accommodationtype}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation start date:</td>';
-  $accommodationstartdate = date('l jS F Y', $_SESSION['accommodationstartdate']);
-  $markup .= "<td>{$accommodationstartdate}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation end date:</td>';
-  $accommodationenddate = date('l jS F Y', $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']));
-  $markup .= "<td>{$accommodationenddate}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation length:</td>';
-  $markup .= "<td>{$_SESSION['accommodationduration']} weeks</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation fee:</td>';
-  $markup .= "<td>&pound;{$accommodationfee}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Accommodation finding fee:</td>';
-  $markup .= "<td>&pound;{$accommodationfindingfee}</td>";
-  $markup .= '</tr>';
+
+  if (isset($_SESSION['accommodationid']) && !is_null($_SESSION['accommodationid'])) {
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation type:</td>';
+    // Look up the accommodation type
+    $query = db_select('castleschool_accommodation_types', 'at')
+      ->fields('at', array('accommodation_type_name'))
+      ->condition('at.accommodation_type_id', $_SESSION['accommodationid'])
+      ->execute();
+    $result = $query->fetchObject();
+    $accommodationtype = $result->accommodation_type_name;
+    $markup .= "<td>{$accommodationtype}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation start date:</td>';
+    $accommodationstartdate = date('l jS F Y', $_SESSION['accommodationstartdate']);
+    $markup .= "<td>{$accommodationstartdate}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation end date:</td>';
+    $accommodationenddate = date('l jS F Y', $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']));
+    $markup .= "<td>{$accommodationenddate}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation length:</td>';
+    $markup .= "<td>{$_SESSION['accommodationduration']} weeks</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation fee:</td>';
+    $markup .= "<td>&pound;{$accommodationfee}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Accommodation finding fee:</td>';
+    $markup .= "<td>&pound;{$accommodationfindingfee}</td>";
+    $markup .= '</tr>';
+  }
+
   $markup .= '<tr>';
   $markup .= '<td>Airport transfer type:</td>';
   // Look up the accommodation type
@@ -1254,80 +1332,6 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $body = $markup;
 
   simple_mail_send($from, $to, $subject, $body);
-
-  // Create a Drupal user if necessary.
-  if (!$account = user_load_by_mail($formvals['email'])) {
-
-    // Generate a random password
-    $password = user_password(8);
-
-    // Set up the user fields
-    $fields = array(
-      'name' => $formvals['email'],
-      'mail' => $formvals['email'],
-      'pass' => $password,
-      'status' => 0,
-      'init' => 'email address',
-      'roles' => array(
-        DRUPAL_AUTHENTICATED_RID => 'authenticated user',
-        4 => 'Student',
-      ),
-    );
-
-    // Create user
-    $account = user_save('', $fields);
-  }
-
-  $fields = array(
-    'course_id' => $_SESSION['castleschool_course'],
-    'hours_per_week' => $_SESSION['castleschool_hoursperweek'],
-    'course_startdate' => $_SESSION['castleschool_day'],
-    'course_enddate' => $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']),
-    'course_length_weeks' => $_SESSION['castleschool_weeks'],
-    'course_fee' => $coursequote,
-    'registration_fee' => $registrationfee,
-    'accommodation_type_id' => $_SESSION['accommodationid'],
-    'accommodation_start_date' => $_SESSION['accommodationstartdate'],
-    'accommodation_end_date' => $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']),
-    'accommodation_duration_weeks' => $_SESSION['accommodationduration'],
-    'accommodation_fee' => $accommodationfee,
-    'accommodation_finding_fee' => $accommodationfindingfee,
-    'airport_transfer_type_id' => $_SESSION['whichairport'],
-    'airport_transfer_singleorreturn' => $_SESSION['arrivaldeparture'],
-    'airport_transfer_fee' => $_SESSION['airporttransferquote'],
-    'total_booking_fee' => $quotetotal,
-    'outstanding_fee' => $quotetotal,
-    'firstname' => $formvals['firstname'],
-    'lastname' => $formvals['lastname'],
-    'date_of_birth' => $formvals['dob'],
-    'gender' => $formvals['gender'],
-    'nationality' => $formvals['nationality'],
-    'passport_or_idnumber' => $formvals['passport'],
-    'telephone' => $formvals['telephone'],
-    'email' => $formvals['email'],
-    'address1' => $formvals['address1'],
-    'address2' => $formvals['address2'],
-    'towncity' => $formvals['towncity'],
-    'region' => $formvals['region'],
-    'postcode' => $formvals['postcode'],
-    'country' => $formvals['country'],
-    'nextofkin_name' => $formvals['nextofkin'],
-    'nextofkin_telephone' => $formvals['nextofkintelephone'],
-    'nextofkin_address' => $formvals['nextofkinaddress'],
-    'smokes' => $formvals['smoke'],
-    'medical_conditions' => $formvals['medicalconditions'],
-    'animal_allergies' => $formvals['petallergies'],
-    'created' => REQUEST_TIME,
-  );
-
-  if (isset($_SESSION['booking_id']) && db_query("SELECT 1 FROM {castleschool_bookings} WHERE booking_id = :uid",
-            array(':uid' => $_SESSION['booking_id']))->fetchField()) {
-    $bookingid = db_update('castleschool_bookings')->fields($fields)
-            ->condition('booking_id', $_SESSION['booking_id'], '=')->execute();
-  } else {
-    $bookingid = db_insert('castleschool_bookings')->fields($fields)->execute();
-    $_SESSION['booking_id'] = $bookingid;
-  }
 
   $_SESSION['paymentfullorpart'] = $formvals['paymentfullorpart'];
 
