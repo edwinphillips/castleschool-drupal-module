@@ -1248,32 +1248,35 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     $markup .= '</tr>';
   }
 
-  $markup .= '<tr>';
-  $markup .= '<td>Airport transfer type:</td>';
-  // Look up the accommodation type
-  $query = db_select('castleschool_airport_transfer_types', 'att')
-    ->fields('att', array('airport_transfer_type_label'))
-    ->condition('att.airport_transfer_type_id', $_SESSION['whichairport'])
-    ->execute();
-  $result = $query->fetchObject();
-  $accommodationtransfertype = $result->airport_transfer_type_label;
-  $markup .= "<td>{$accommodationtransfertype}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Airport transfer single/return:</td>';
-  // Look up the accommodation type
-  $query = db_select('castleschool_airport_transfer_singleorreturn', 'atsor')
-    ->fields('atsor', array('airport_transfer_singleorreturn_label'))
-    ->condition('atsor.airport_transfer_singleorreturn', $_SESSION['arrivaldeparture'])
-    ->execute();
-  $result = $query->fetchObject();
-  $airporttransfersingleorreturn = $result->airport_transfer_singleorreturn_label;
-  $markup .= "<td>{$airporttransfersingleorreturn}</td>";
-  $markup .= '</tr>';
-  $markup .= '<tr>';
-  $markup .= '<td>Airport transfer fee:</td>';
-  $markup .= "<td>&pound;{$_SESSION['airporttransferquote']}</td>";
-  $markup .= '</tr>';
+  if (isset($_SESSION['whichairport']) && !is_null($_SESSION['whichairport'])) {
+    $markup .= '<tr>';
+    $markup .= '<td>Airport transfer type:</td>';
+    // Look up the accommodation type
+    $query = db_select('castleschool_airport_transfer_types', 'att')
+      ->fields('att', array('airport_transfer_type_label'))
+      ->condition('att.airport_transfer_type_id', $_SESSION['whichairport'])
+      ->execute();
+    $result = $query->fetchObject();
+    $accommodationtransfertype = $result->airport_transfer_type_label;
+    $markup .= "<td>{$accommodationtransfertype}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Airport transfer single/return:</td>';
+    // Look up the accommodation type
+    $query = db_select('castleschool_airport_transfer_singleorreturn', 'atsor')
+      ->fields('atsor', array('airport_transfer_singleorreturn_label'))
+      ->condition('atsor.airport_transfer_singleorreturn', $_SESSION['arrivaldeparture'])
+      ->execute();
+    $result = $query->fetchObject();
+    $airporttransfersingleorreturn = $result->airport_transfer_singleorreturn_label;
+    $markup .= "<td>{$airporttransfersingleorreturn}</td>";
+    $markup .= '</tr>';
+    $markup .= '<tr>';
+    $markup .= '<td>Airport transfer fee:</td>';
+    $markup .= "<td>&pound;{$_SESSION['airporttransferquote']}</td>";
+    $markup .= '</tr>';
+  }
+
   $markup .= '<tr>';
   $markup .= '<td>Total booking fee:</td>';
   $markup .= "<td>&pound;{$quotetotal}</td>";
