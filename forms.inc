@@ -958,6 +958,7 @@ function castleschool_bookingform_form_validate($form, &$form_state) {
  * @param array $form_state
  */
 function castleschool_bookingform_form_submit($form, &$form_state) {
+  global $base_root;
 
   $formvals = $form_state['values'];
   unset($formvals['submit_button']);
@@ -1283,7 +1284,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '</table>';
-  $markup .= '<p>View our terms & conditions <a href="https://www.castle-school.co.uk/terms-and-conditions">here</a>.</p>';
+  $markup .= '<p>View our terms & conditions <a href="' . $base_root . '/terms-and-conditions">here</a>.</p>';
   $markup .= '<table style="width:400px" cellspacing="0" cellpadding="0" border="0">';
   $markup .= '<tbody>';
   $markup .= '<tr>';
@@ -1307,20 +1308,20 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</td>';
   $markup .= '</tr>';
   $markup .= '<tr>';
-  $markup .= '<span style="color:#333333;font-size:10pt;font-family:Calibri">W: <a href="https://www.castle-school.co.uk" style="color:#06c">www.castle-school.co.uk</a></span>';
+  $markup .= '<span style="color:#333333;font-size:10pt;font-family:Calibri">W: <a href="' . $base_root . '" style="color:#06c">' . $base_root . '</a></span>';
   $markup .= '</td>';
   $markup .= '</tr>';
   $markup .= '<tr>';
-  $markup .= '<td style="padding-top:20px;padding-bottom:20px"><a href="https://www.castle-school.co.uk"><img src="https://www.castle-school.co.uk/sites/default/files/castle-school-logo_1.png" alt="The Castle School of English" style="display:block" width="170" height="52"></a></td>';
+  $markup .= '<td style="padding-top:20px;padding-bottom:20px"><a href="' . $base_root . '"><img src="' . $base_root . '/sites/default/files/castle-school-logo_1.png" alt="The Castle School of English" style="display:block" width="170" height="52"></a></td>';
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td style="padding-top:10px;padding-bottom:6px" valign="middle">';
   $markup .= '<table cellspacing="0" cellpadding="0" border="0">';
   $markup .= '<tbody>';
   $markup .= '<tr>';
-  $markup .= '<td style="padding-right:5px"><a href="https://www.facebook.com/CastleSchoolofEnglish"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/facebook.jpg" alt="image" width="24" height="24"></a></td>';
-  $markup .= '<td style="padding-right:5px"><a href="https://twitter.com/castleschool"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/twitter.jpg" alt="image" width="24" height="24"></a></td>';
-  $markup .= '<td style="padding-right:5px"><a href="https://www.youtube.com/channel/UC-sFhlO1P8I2Jq4SpnmgWcA"> <img style="display:block" src="https://www.castle-school.co.uk/sites/all/modules/castleschool/img/youtube.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '<td style="padding-right:5px"><a href="https://www.facebook.com/CastleSchoolofEnglish"> <img style="display:block" src="' . $base_root . '/sites/all/modules/castleschool/img/facebook.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '<td style="padding-right:5px"><a href="https://twitter.com/castleschool"> <img style="display:block" src="' . $base_root . '/sites/all/modules/castleschool/img/twitter.jpg" alt="image" width="24" height="24"></a></td>';
+  $markup .= '<td style="padding-right:5px"><a href="https://www.youtube.com/channel/UC-sFhlO1P8I2Jq4SpnmgWcA"> <img style="display:block" src="' . $base_root . '/sites/all/modules/castleschool/img/youtube.jpg" alt="image" width="24" height="24"></a></td>';
   $markup .= '</tr>';
   $markup .= '</tbody>';
   $markup .= '</table>';

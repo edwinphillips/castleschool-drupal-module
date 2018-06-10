@@ -43,8 +43,8 @@ if ($response['transStatus'] == 'Y') {
   $to = $response['email'];
   $subject = 'Payment Confirmation from The Castle School of English';
 
-  $markup  = '<h1>Payment Confirmation from Castle School of English</h1>';
-  $markup .= "<p>Thank you for your payment to Castle School of English against course booking Id #{$response['cartId']}. This email is confirmation of your payment.</p>";
+  $markup  = '<h1>Payment Confirmation from The Castle School of English</h1>';
+  $markup .= "<p>Thank you for your payment to The Castle School of English against course booking Id #{$response['cartId']}. This email is confirmation of your payment.</p>";
   $markup .= "<p>Your payment ID is #{$paymentid}.</p>";
   $markup .= '<table>';
   $markup .= '<tr>';
