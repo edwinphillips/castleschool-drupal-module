@@ -982,20 +982,29 @@ function castleschool_show_course_bookings() {
   $markup = '<table>';
   $markup .= '<tr>';
   $markup .= "<th>{$t('Booking ID')}</th>";
-  $markup .= "<th>{$t('Name')}</th>";
-  $markup .= "<th>{$t('Date')}</th>";
+  $markup .= "<th>{$t('Booking Date')}</th>";
+  $markup .= "<th>{$t('Student Name')}</th>";
   $markup .= "<th>{$t('Course')}</th>";
-  $markup .= "<th>{$t('Total')}</th>";
-  $markup .= "<th>{$t('Outstanding')}</th>";
-  $markup .= "<th>{$t('Status')}</th>";
+  $markup .= "<th>{$t('Total Fee')}</th>";
+  $markup .= "<th>{$t('Outstanding Fee')}</th>";
+  $markup .= "<th>{$t('Booking Status')}</th>";
   $markup .= "<th>{$t('Actions')}</th>";
   $markup .= '</tr>';
 
   foreach ($bookings as $booking) {
-    $markup .= '<tr>';
+
+    if ($booking->status == 'Pending') {
+      $colour = 'lightpink';
+    } else if ($booking->status == 'Confirmed') {
+      $colour = 'lightgreen';
+    } else {
+      $colour = 'white';
+    }
+
+    $markup .= "<tr style='background-color: {$colour}'>";
     $markup .= "<td>{$booking->booking_id}</td>";
-    $markup .= "<td>{$booking->firstname} {$booking->lastname}</td>";
     $markup .= '<td>' . date('M j, Y g:i:s A', $booking->booking_created) . '</td>';
+    $markup .= "<td>{$booking->firstname} {$booking->lastname}</td>";
     $markup .= "<td>{$booking->course_name}</td>";
     $markup .= "<td>&pound;{$booking->total_booking_fee}</td>";
     $markup .= "<td>&pound;{$booking->outstanding_fee}</td>";
