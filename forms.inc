@@ -1196,7 +1196,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
   $markup .= '</tr>';
   $markup .= '<tr>';
   $markup .= '<td>Course end date:</td>';
-  $courseenddate = date('l jS F Y', $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks']));
+  $courseenddate = date('l jS F Y', $_SESSION['castleschool_day'] + (60 * 60 * 24 * 7 * $_SESSION['castleschool_weeks'] - 259200));
   $markup .= "<td>{$courseenddate}</td>";
   $markup .= '</tr>';
   $markup .= '<tr>';
@@ -1231,7 +1231,7 @@ function castleschool_bookingform_form_submit($form, &$form_state) {
     $markup .= '</tr>';
     $markup .= '<tr>';
     $markup .= '<td>Accommodation end date:</td>';
-    $accommodationenddate = date('l jS F Y', $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration']));
+    $accommodationenddate = date('l jS F Y', $_SESSION['accommodationstartdate'] + (60 * 60 * 24 * 7 * $_SESSION['accommodationduration'] - 86400));
     $markup .= "<td>{$accommodationenddate}</td>";
     $markup .= '</tr>';
     $markup .= '<tr>';
