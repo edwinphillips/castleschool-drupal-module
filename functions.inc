@@ -717,6 +717,9 @@ function castleschool_payment_confirmation_content($bookingid) {
 
   if (!empty($bookingid)) {
     $markup = "<p>Your payment for booking Id {$bookingid} has been confirmed.</p>";
+    $markup  = "<p>Thank you - your payment for Booking Id {$bookingid} has been authorised and your enrolment for your course is now complete.</p>";
+    $markup .= '<p>You will receive booking and payment confirmation emails which are your confirmation of booking and payment.</p>';
+    $markup .= '<p>If you have any questions, please call +44 (0) 1273 748185 otherwise we look forward to seeing you on your course!</p>';
   } else {
     $markup = "<p>No booking Id found.</p>";
   }
