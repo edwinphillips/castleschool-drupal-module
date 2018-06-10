@@ -1618,3 +1618,25 @@ function castleschool_make_course_booking_payment($bookingid) {
 
   return drupal_get_form('castleschool_make_course_booking_payment_form', $bookingid);
 }
+
+/**
+ * Sets session vars and redirects to Worldpay Payment form
+ *
+ * @param int $bookingid
+ */
+function castleschool_course_booking_payment_link($bookingid) {
+
+    $sql = "SELECT outstanding_fee
+              FROM cs_statler.castleschool_bookings
+             WHERE booking_id = :bookingid";
+    $query = db_query($sql, array('bookingid' => $bookingid));
+    $booking = $query->fetchAssoc();
+
+    if (isset($booking['outstanding_fee']) && $booking['outstanding_fee'] > 0) {
+      $_SESSION['booking_id'] = $bookingid;
+      $_SESSION['payment_amount'] = $booking['outstanding_fee'];
+      drupal_goto('make-worldpay-payment');
+    } else {
+      drupal_goto();
+    }
+}

@@ -52,6 +52,11 @@ if ($response['transStatus'] == 'Y') {
   $markup .= "<td>&pound;{$response['amount']}</td>";
   $markup .= '</tr>';
   $markup .= '</table>';
+
+  if (($outstandingfee - $response['authAmount']) > 0) {
+    $markup .= '<p>You selected to make a partial payment against your booking. In order to settle the outstanding balance if £' . ($outstandingfee - $response['authAmount']) . ', please <a href="' . $base_root . '/castleschool/payment/' . $response['cartId'] . '">click here</a>.</p>';
+  }
+
   $markup .= '<table style="width:400px" cellspacing="0" cellpadding="0" border="0">';
   $markup .= '<tbody>';
   $markup .= '<tr>';

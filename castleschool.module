@@ -117,6 +117,12 @@ function castleschool_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['castleschool/payment/%'] = array(
+    'page callback' => 'castleschool_course_booking_payment_link',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+  );
+
   return $items;
 }
 
