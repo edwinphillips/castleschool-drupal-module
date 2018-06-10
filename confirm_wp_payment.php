@@ -104,9 +104,9 @@ if ($response['transStatus'] == 'Y') {
 
   simple_mail_send($from, $to, $subject, $body);
 
-  $url = "admin/settings/castleschool/coursebookings/{$response['cartId']}";
+  $url = "/admin/settings/castleschool/coursebookings/{$response['cartId']}";
 } else if ($response['rawAuthCode'] == 'C') {
-  $url = 'payment-cancelled';
+  $url = '/payment-cancelled';
 } else {
   $url = '';
 }

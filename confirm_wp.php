@@ -104,9 +104,9 @@ if ($response['transStatus'] == 'Y') {
 
   simple_mail_send($from, $to, $subject, $body);
 
-  $url = 'payment-confirmation';
+  $url = '/payment-confirmation';
 } else if ($response['rawAuthCode'] == 'C') {
-  $url = 'payment-cancelled';
+  $url = '/payment-cancelled';
 } else {
   $url = '';
 }
