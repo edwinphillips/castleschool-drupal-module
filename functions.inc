@@ -1015,7 +1015,7 @@ function castleschool_show_course_bookings() {
     $markup .= "<td>";
     $markup .= "<a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}'>View</a>";
     if ($booking->outstanding_fee > 0) {
-      $markup .= " | <a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}/payment'>Make payment</a>";
+      $markup .= " | <a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}/payment'>Make payment</a> | <a href='/admin/settings/castleschool/coursebookings/{$booking->booking_id}/sendpaymentlink'>Send payment link</a>";
     }
     $markup .= "</td>";
     $markup .= '</tr>';
@@ -1617,6 +1617,11 @@ function castleschool_country_selection() {
 function castleschool_make_course_booking_payment($bookingid) {
 
   return drupal_get_form('castleschool_make_course_booking_payment_form', $bookingid);
+}
+
+function castleschool_send_course_booking_payment_link($bookingid) {
+
+  return drupal_get_form('castleschool_send_course_booking_payment_link_form', $bookingid);
 }
 
 /**

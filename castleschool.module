@@ -117,6 +117,15 @@ function castleschool_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['admin/settings/castleschool/coursebookings/%/sendpaymentlink'] = array(
+    'title' => 'Send Course Booking Payment Link',
+    'description' => 'Castle School Send Course Booking Payment Link',
+    'page callback' => 'castleschool_send_course_booking_payment_link',
+    'page arguments' => array(4),
+    'access arguments' => array('Modify Castle School settings'),
+    'type' => MENU_CALLBACK,
+  );
+
   $items['castleschool/payment/%'] = array(
     'page callback' => 'castleschool_course_booking_payment_link',
     'page arguments' => array(2),
