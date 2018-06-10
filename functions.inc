@@ -1027,7 +1027,10 @@ function castleschool_show_course_bookings() {
  */
 function castleschool_show_course_booking_details($bookingid) {
 
-  $sql = "SELECT cc.course_name, cb.hours_per_week, cb.course_startdate, cb.course_enddate, cb.course_length_weeks,
+  $sql = "SELECT cb.firstname, cb.lastname, cb.date_of_birth, cb.gender, cb.nationality, cb.passport_or_idnumber, cb.telephone, cb.email,
+                 cb.address1, cb.address2, cb.towncity, cb.region, cb.postcode, cb.country, cb.nextofkin_name, cb.nextofkin_telephone,
+                 cb.nextofkin_address, cb.smokes, cb.medical_conditions, cb.animal_allergies,
+                 cc.course_name, cb.hours_per_week, cb.course_startdate, cb.course_enddate, cb.course_length_weeks,
                  cb.course_fee, cb.registration_fee, at.accommodation_type_name, cb.accommodation_start_date, cb.accommodation_end_date,
                  cb.accommodation_duration_weeks, cb.accommodation_fee, cb.accommodation_finding_fee, att.airport_transfer_type_label,
                  atsor.airport_transfer_singleorreturn_label, cb.airport_transfer_fee, cb.total_booking_fee
@@ -1041,6 +1044,124 @@ function castleschool_show_course_booking_details($bookingid) {
   $booking = $query->fetchAssoc();
 
   $markup  = '';
+  $markup .= '<div class="table-responsive">';
+  $markup .= '<table class="table table-bordered table-striped">';
+  $markup .= '<thead>';
+  $markup .= '<tr class="info">';
+  $markup .= '<th colspan="4" width="100%">';
+  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Student</strong></p>';
+  $markup .= '</th>';
+  $markup .= '</tr>';
+  $markup .= '</thead>';
+  $markup .= '<tbody>';
+  $markup .= '<tr>';
+  $markup .= '<td width="18%">';
+  $markup .= '<p class="text-left"><strong>Name:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td width="32%">';
+  $markup .= '<p class="text-left">' . $booking['firstname'] . ' ' . $booking['lastname'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td width="18%" rowspan="3" style="vertical-align:top;">';
+  $markup .= '<p class="text-left"><strong>Address:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td width="32%" rowspan="3" style="vertical-align:top;">';
+  $address = $booking['address1'] . '<br/>';
+  if ($booking['address2'] != '') {
+    $address .= $booking['address2'] . '<br/>';
+  }
+  $address .= $booking['towncity'] . '<br/>' . $booking['region'] . '<br/>' . $booking['postcode'] . '<br/>' . $booking['country'];
+  $markup .= '<p class="text-left">' . $address . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td width="18%">';
+  $markup .= '<p class="text-left"><strong>Date of birth:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td width="32%">';
+  $markup .= '<p class="text-left">' . date('F jS, Y', strtotime($booking['date_of_birth'])) . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td width="18%">';
+  $markup .= '<p class="text-left"><strong>Email:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td width="32%">';
+  $markup .= '<p class="text-left"><a href="mailto:' . $booking['email'] . '">' . $booking['email'] . '</a></p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td width="18%">';
+  $markup .= '<p class="text-left"><strong>Telephone:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td width="32%">';
+  $markup .= '<p class="text-left">' . $booking['telephone'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Next of kin name:</strong></p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['nextofkin_name'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Gender:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['gender'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Next of kin telephone:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['nextofkin_telephone'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Nationality:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['nationality'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Next of kin address:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['nextofkin_address'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Passport/ID number:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['passport_or_idnumber'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Smokes:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['smokes'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '<tr>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Medical conditions:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['medical_conditions'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p><strong>Animal allergies:</strong</p>';
+  $markup .= '</td>';
+  $markup .= '<td>';
+  $markup .= '<p>' . $booking['animal_allergies'] . '</p>';
+  $markup .= '</td>';
+  $markup .= '</tr>';
+  $markup .= '</tbody>';
+  $markup .= '</table>';
+  $markup .= '</div>';
 
   $markup .= '<div class="table-responsive">';
   $markup .= '<table class="table table-bordered table-striped">';
@@ -1152,33 +1273,35 @@ function castleschool_show_course_booking_details($bookingid) {
   $markup .= '</table>';
   $markup .= '</div>';
 
-  $payments = db_query("SELECT * FROM {castleschool_payments} WHERE booking_id = :bookingid", array('bookingid' => $bookingid));
+  $payments = db_query("SELECT * FROM {castleschool_payments} WHERE booking_id = :bookingid", array('bookingid' => $bookingid))->fetchAll();
 
-  $markup .= '<div class="table-responsive">';
-  $markup .= '<table class="table table-bordered table-striped">';
-  $markup .= '<thead>';
-  $markup .= '<tr class="info">';
-  $markup .= '<th width="25%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment ID</strong></p>';
-  $markup .= '</th>';
-  $markup .= '<th width="25%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Date/Time</strong></p>';
-  $markup .= '</th>';
-  $markup .= '<th width="25%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>WorldPay Transaction ID</strong></p>';
-  $markup .= '</th>';
-  $markup .= '<th width="25%">';
-  $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Amount</strong></p>';
-  $markup .= '</th>';
-  $markup .= '</tr>';
-  $markup .= '</thead>';
-  $markup .= '<tbody>';
+  if (!empty($payments)) {
+    $markup .= '<div class="table-responsive">';
+    $markup .= '<table class="table table-bordered table-striped">';
+    $markup .= '<thead>';
+    $markup .= '<tr class="info">';
+    $markup .= '<th width="25%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment ID</strong></p>';
+    $markup .= '</th>';
+    $markup .= '<th width="25%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Date/Time</strong></p>';
+    $markup .= '</th>';
+    $markup .= '<th width="25%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>WorldPay Transaction ID</strong></p>';
+    $markup .= '</th>';
+    $markup .= '<th width="25%">';
+    $markup .= '<p class="text-left" style="margin-bottom: 0;"><strong>Payment Amount</strong></p>';
+    $markup .= '</th>';
+    $markup .= '</tr>';
+    $markup .= '</thead>';
+    $markup .= '<tbody>';
+  }
 
-  while ($payment = $payments->fetchAssoc()) {
-    $worldpaydata = json_decode($payment['worldpay_data']);
+  foreach ($payments as $payment) {
+    $worldpaydata = json_decode($payment->worldpay_data);
     $markup .= '<tr>';
     $markup .= '<td>';
-    $markup .= $payment['payment_id'];
+    $markup .= $payment->payment_id;
     $markup .= '</td>';
     $markup .= '<td>';
     $markup .= date('M j, Y g:i:s A', $worldpaydata->transTime / 1000);
@@ -1192,12 +1315,22 @@ function castleschool_show_course_booking_details($bookingid) {
     $markup .= '</tr>';
   }
 
+  if (!empty($payments)) {
+    $markup .= '</tbody>';
+    $markup .= '</table>';
+    $markup .= '</div>';
+  }
+
   $markup .= '</tbody>';
   $markup .= '</table>';
   $markup .= '</div>';
 
   $form['bookingdetails'] = array(
     '#markup' => $markup,
+  );
+
+  $form['back_button'] = array(
+    '#markup' => "<input type='button' class='form-submit' value='Back' onclick=\"window.location='/admin/settings/castleschool/coursebookings';\" />",
   );
 
   return $form;
